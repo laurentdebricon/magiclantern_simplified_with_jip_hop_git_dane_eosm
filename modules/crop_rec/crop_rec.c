@@ -6383,7 +6383,7 @@ static LVINFO_UPDATE_FUNC(crop_info)
     if (CROP_PRESET_MENU == CROP_PRESET_3K_EOSM)
     {
         snprintf(buffer, sizeof(buffer), "3k 1:1");
-        if (ratios == 0x1 && ratios == 0x2 && set_25fps) snprintf(buffer, sizeof(buffer), "2.7k 1:1");
+        if ((ratios == 0x1 || ratios == 0x2) && set_25fps) snprintf(buffer, sizeof(buffer), "2.7k 1:1");
     }
     
     if (CROP_PRESET_MENU == CROP_PRESET_4K_EOSM)
