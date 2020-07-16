@@ -271,11 +271,11 @@ static const char crop_choices_help2_eosm[] =
 "HD 1080p 30/46/40 fps\n"
 //"mv1080p bypass mv720p idle mode\n"
 //"mv720p 50fps 16:9\n"
-"1:1 x5 zoom mode(centered raw, cropped preview)\n"
-"1:1 2K x5crop, real time preview\n"
-"1:1 3K x5crop, framing preview\n"
+"1:1 x5 zoom mode(centered raw, cropped preview).\n"
+"1:1 2K x5crop, real time preview.\n"
+"1:1 3K x5crop, framing preview. Enable set_25fps for 24fps 2.39:1/2.35:1.\n"
 "1:1 4K x5crop, framing preview. Enable set_25fps for 5K.\n"
-"1x3 binning modes(anamorphic)\n";
+"1x3 binning modes(anamorphic).\n";
 //"1x3 binning modes(anamorphic)\n";
 //"h264 MOV)\n"
 // "3:1 4K x5crop, framing preview\n"
@@ -3314,7 +3314,7 @@ static inline uint32_t reg_override_3K_eosm(uint32_t reg, uint32_t old_val)
         switch (reg)
         {
             case 0xC0F06804: return 0x5b90318 + reg_6804_width + (reg_6804_height << 16); // 3032x1436  x5 Mode;
-            case 0xC0F06014: return (get_halfshutter_pressed() && zoomaid && !RECORDING) ? 0x839: 0x62c + reg_6014;
+            case 0xC0F06014: return (get_halfshutter_pressed() && zoomaid && !RECORDING) ? 0x839: 0x83a + reg_6014;
             case 0xC0F0713c: return 0x5b9 + reg_713c;
             case 0xC0F06824: return 0x3ca;
             case 0xC0F06828: return 0x3ca;
@@ -3329,7 +3329,7 @@ static inline uint32_t reg_override_3K_eosm(uint32_t reg, uint32_t old_val)
         }
     }
     
-    if (ratios == 0x1 || ratios == 0x2)
+    if ((ratios == 0x1 || ratios == 0x2) && !set_25fps)
     {
         switch (reg)
         {
@@ -3338,6 +3338,44 @@ static inline uint32_t reg_override_3K_eosm(uint32_t reg, uint32_t old_val)
             case 0xC0F0713c: return 0x519 + reg_713c;
             case 0xC0F07150: return 0x514 + reg_7150;
             case 0xC0F06014: return 0x767 + reg_6014;
+            case 0xC0F06824: return 0x3ca;
+            case 0xC0F06828: return 0x3ca;
+            case 0xC0F0682C: return 0x3ca;
+            case 0xC0F06830: return 0x3ca;
+            case 0xC0F06010: return 0x34b + reg_6008;
+            case 0xC0F06008: return 0x34b034b + reg_6008 + (reg_6008 << 16);
+            case 0xC0F0600C: return 0x34b034b + reg_6008 + (reg_6008 << 16);
+        }
+    }
+    
+    if (ratios == 0x1 && set_25fps)
+    {
+        switch (reg)
+        {
+                /* will change to 24fps for continous action 2.39:1 */
+            case 0xC0F06804: return 0x49b02c6 + reg_6804_width + (reg_6804_height << 16);
+            case 0xC0F0713c: return 0x49b + reg_713c;
+            case 0xC0F07150: return 0x514 + reg_7150;
+            case 0xC0F06014: return 0x62c + reg_6014;
+            case 0xC0F06824: return 0x3ca;
+            case 0xC0F06828: return 0x3ca;
+            case 0xC0F0682C: return 0x3ca;
+            case 0xC0F06830: return 0x3ca;
+            case 0xC0F06010: return 0x34b + reg_6008;
+            case 0xC0F06008: return 0x34b034b + reg_6008 + (reg_6008 << 16);
+            case 0xC0F0600C: return 0x34b034b + reg_6008 + (reg_6008 << 16);
+        }
+    }
+    
+    if (ratios == 0x2 && set_25fps)
+    {
+        switch (reg)
+        {
+                /* will change to 24fps for continous action 2.35:1 */
+            case 0xC0F06804: return 0x49b02c6 + reg_6804_width + (reg_6804_height << 16);
+            case 0xC0F0713c: return 0x49b + reg_713c;
+            case 0xC0F07150: return 0x514 + reg_7150;
+            case 0xC0F06014: return 0x62c + reg_6014;
             case 0xC0F06824: return 0x3ca;
             case 0xC0F06828: return 0x3ca;
             case 0xC0F0682C: return 0x3ca;
@@ -6345,6 +6383,7 @@ static LVINFO_UPDATE_FUNC(crop_info)
     if (CROP_PRESET_MENU == CROP_PRESET_3K_EOSM)
     {
         snprintf(buffer, sizeof(buffer), "3k 1:1");
+        if (ratios == 0x1 && ratios == 0x2 && set_25fps) snprintf(buffer, sizeof(buffer), "2.7k 1:1");
     }
     
     if (CROP_PRESET_MENU == CROP_PRESET_4K_EOSM)
