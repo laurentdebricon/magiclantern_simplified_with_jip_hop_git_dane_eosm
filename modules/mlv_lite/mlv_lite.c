@@ -2344,6 +2344,16 @@ static int raw_rec_should_preview(void)
 
     /* some modes have Canon preview totally broken */
     int preview_broken = (lv_dispsize == 1 && raw_active_width > 2000);
+<<<<<<< HEAD
+=======
+    
+    /* automate framing or realtime preview while selecting a new preset */
+    if (prevmode)
+    {
+        if ((raw_active_height > 1300 || raw_active_width > 1800) && RAW_IS_IDLE) preview_mode = 2;
+        if (raw_active_height < 1300 && raw_active_width < 1801 && RAW_IS_IDLE) preview_mode = 1;
+    }
+>>>>>>> ae44d9695 (crop_rec.c,mlv_lite.c:(EOSM enable x3crop when pushing SET also with anamorphic mode))
 
     int prefer_framing_preview = 
         (res_x < max_res_x * 80/100) ? 1 :  /* prefer correct framing instead of large black bars */

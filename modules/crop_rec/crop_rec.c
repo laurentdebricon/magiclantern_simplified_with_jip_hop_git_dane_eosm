@@ -451,6 +451,7 @@ static int pre2 = 0;
 static int pre3 = 0;
 static int prea = 0;
 static int preb = 0;
+static int anacrop = 0;
 
 
 /* helper to allow indexing various properties of Canon's video modes */
@@ -5069,15 +5070,28 @@ static unsigned int crop_rec_keypress_cbr(unsigned int key)
     if (is_EOSM && lv && !gui_menu_shown() && !RECORDING && is_movie_mode() &&
         ((key == MODULE_KEY_PRESS_DOWN && x3toggle == 0x1) || (key == MODULE_KEY_PRESS_SET && x3toggle == 0x2)) &&
         (CROP_PRESET_MENU == CROP_PRESET_3x3_mv1080_EOSM || CROP_PRESET_MENU == CROP_PRESET_mcm_mv1080_EOSM ||
-         CROP_PRESET_MENU == CROP_PRESET_3x3_mv1080_48fps_EOSM))
+         CROP_PRESET_MENU == CROP_PRESET_3x3_mv1080_48fps_EOSM || CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_EOSM))
     {
         if (x3crop == 0x1)
         {
             x3crop = 0x0;
+            if (anacrop)
+            {
+                crop_preset_index = 6;
+                CROP_PRESET_MENU =  CROP_PRESET_anamorphic_rewired_EOSM;
+                anacrop = 0;
+            }
         }
         else
         {
             x3crop = 0x1;
+            //allow for x3crop when using anamorphic mode
+            if (CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_EOSM)
+            {
+                crop_preset_index = 0;
+                CROP_PRESET_MENU = CROP_PRESET_mcm_mv1080_EOSM;
+                anacrop = 1;
+            }
         }
         PauseLiveView();
         ResumeLiveView();
