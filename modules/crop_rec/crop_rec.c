@@ -457,6 +457,7 @@ static int prea = 0;
 static int preb = 0;
 static int anacrop = 0;
 static int anacrop2 = 0;
+static int anacrop3 = 0;
 
 
 /* helper to allow indexing various properties of Canon's video modes */
@@ -2360,6 +2361,8 @@ static inline uint32_t reg_override_bits(uint32_t reg, uint32_t old_val)
         /* x10crop preview hack */
         if (get_ms_clock() - last_hs_unpress > 100 && get_halfshutter_pressed() && !crop_patch2)
         {
+            //turn off SET button x10 zoom
+            anacrop3 = 0;
             /* checking passed 1500ms for when in canon menu. get_ms_clock() seems to be counting with no reset while in canon menu */
             if (get_ms_clock() - last_hs_unpress < 1500) crop_preset = CROP_PRESET_x10_EOSM;
         }
@@ -5006,7 +5009,7 @@ static unsigned int crop_rec_keypress_cbr(unsigned int key)
     }
     
     /* presets shortcuts */
-    if (!RECORDING && key == MODULE_KEY_TOUCH_1_FINGER && lv_dispsize == 10 && is_movie_mode() && !gui_menu_shown() && lv)
+    if (!RECORDING && key == MODULE_KEY_TOUCH_1_FINGER && lv_dispsize == 10 && !anacrop3 && is_movie_mode() && !gui_menu_shown() && lv)
     {
         /* always turned off when running from this function */
         framestop = 0;
@@ -5089,7 +5092,7 @@ static unsigned int crop_rec_keypress_cbr(unsigned int key)
      */
     
     /* presets shortcuts */
-    if (!RECORDING && key == MODULE_KEY_PRESS_SET && lv_dispsize == 10 && is_movie_mode() && !gui_menu_shown() && lv)
+    if (!RECORDING && key == MODULE_KEY_PRESS_SET && lv_dispsize == 10 && !anacrop3 && is_movie_mode() && !gui_menu_shown() && lv)
     {
         if ((!prea && !preb && crop_preset_index != 6) || ratios != 0)
         {
@@ -5222,6 +5225,21 @@ static unsigned int crop_rec_keypress_cbr(unsigned int key)
         ResumeLiveView();
         
         return 0;
+    }
+    
+    //x10crop with SET push while in x5 modes
+    if (is_EOSM && lv && !gui_menu_shown() && !RECORDING && is_movie_mode() && !anacrop3 &&
+        key == MODULE_KEY_PRESS_SET && (CROP_PRESET_MENU == CROP_PRESET_2K_EOSM || CROP_PRESET_MENU == CROP_PRESET_3K_EOSM || CROP_PRESET_MENU == CROP_PRESET_4K_EOSM))
+    {
+        anacrop3 = 1;
+        set_lv_zoom(10);
+        key = MODULE_KEY_UNPRESS_SET;
+    }
+    if (is_EOSM && lv && !gui_menu_shown() && !RECORDING && is_movie_mode() && lv_dispsize == 10 &&
+        key == MODULE_KEY_PRESS_SET && (CROP_PRESET_MENU == CROP_PRESET_2K_EOSM || CROP_PRESET_MENU == CROP_PRESET_3K_EOSM || CROP_PRESET_MENU == CROP_PRESET_4K_EOSM))
+    {
+        set_lv_zoom(5);
+        key = MODULE_KEY_UNPRESS_SET;
     }
     
     /* h264 */
@@ -6332,11 +6350,12 @@ static unsigned int crop_rec_polling_cbr(unsigned int unused)
         gui_uilock(UILOCK_NONE);
         info_led_off();
         set_lv_zoom(5);
-        if (CROP_PRESET_MENU == CROP_PRESET_2K_EOSM)
+        if (CROP_PRESET_MENU == CROP_PRESET_2K_EOSM && !anacrop3)
         {
-        PauseLiveView();
-        ResumeLiveView();
+            PauseLiveView();
+            ResumeLiveView();
         }
+        anacrop3 = 0;
     }
     return CBR_RET_CONTINUE;
 }
