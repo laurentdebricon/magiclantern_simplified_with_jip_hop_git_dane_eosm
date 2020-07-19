@@ -6490,7 +6490,7 @@ static LVINFO_UPDATE_FUNC(crop_info)
         }
         if (ratios == 0x2)
         {
-            snprintf(buffer, sizeof(buffer), "flv 2.35:1 flv");
+            snprintf(buffer, sizeof(buffer), "flv 2.35:1");
         }
         if (ratios == 0x3)
         {
