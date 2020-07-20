@@ -2553,8 +2553,10 @@ static int hdr_interpolate()
 
                     int dir = edge_direction[x + y*w];
                     
-                    int edge_interp(int dir)
-                    {
+                    int edge_interp(int dir);
+                    //int edge_interp(int dir)
+                    //cr2hdr.c:2706:21: error: function definition is not allowed here. Fixing this allows for native gcc to compile on mac.
+                    //{
                         
                         int dxa = edge_directions[dir].a.x;
                         int dya = edge_directions[dir].a.y * s;
@@ -2565,7 +2567,7 @@ static int hdr_interpolate()
                         int pi = (raw2ev[pa] * 2 + raw2ev[pb]) / 3;
                         
                         return pi;
-                    }
+                    //}
                     
                     /* vary the interpolation direction and average the result (reduces aliasing) */
                     int pi0 = edge_interp(dir);
