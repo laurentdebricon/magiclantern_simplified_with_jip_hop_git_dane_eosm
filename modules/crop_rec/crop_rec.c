@@ -686,21 +686,21 @@ static inline void FAST calc_skip_offsets(int * p_skip_left, int * p_skip_right,
                 {
                     skip_left       = 72;
                     skip_right      = 0;
-                    skip_top        = 662;
+                    skip_top        = 680;
                     skip_bottom     = 0;
                 }
                 if (ratios == 0x2)
                 {
                     skip_left       = 72;
                     skip_right      = 0;
-                    skip_top        = 634;
+                    skip_top        = 652;
                     skip_bottom     = 0;
                 }
                 if (ratios == 0x3)
                 {
                     skip_left       = 72;
                     skip_right      = 0;
-                    skip_top        = 500;
+                    skip_top        = 516;
                     skip_bottom     = 0;
                 }
             }
@@ -3377,7 +3377,6 @@ static inline uint32_t reg_override_3K_eosm(uint32_t reg, uint32_t old_val)
             case 0xC0F0600C: return 0x34b034b + reg_6008 + (reg_6008 << 16);
         }
     }
-    
     if (ratios == 0x1 && set_25fps)
     {
 		EngDrvOutLV(0xC0F38024, 0x45302b5);
@@ -3417,7 +3416,6 @@ static inline uint32_t reg_override_3K_eosm(uint32_t reg, uint32_t old_val)
             case 0xC0F0600C: return 0x34b034b + reg_6008 + (reg_6008 << 16);
         }
     }
-    
     if (ratios == 0x3)
     {
 		EngDrvOutLV(0xC0F38024, 0x45302ff);
@@ -3444,11 +3442,14 @@ static inline uint32_t reg_override_4K_eosm(uint32_t reg, uint32_t old_val)
     
 if (!set_25fps)
 {
+        	EngDrvOutLV(0xc0f383d4, 0x100bf);
+        	EngDrvOutLV(0xc0f383dc, 0x2e401c7);
+		EngDrvOutLV(0xC0F38024, 0x4530403);
     switch (reg)
     {
-        case 0xC0F06804: return (ratios == 0x1) ? 0x942041e + reg_6804_width + (reg_6804_height << 16):
-            (ratios == 0x2) ? 0x942041e + reg_6804_width + (reg_6804_height << 16):
-            (ratios == 0x3) ? 0xaed041e + reg_6804_width + (reg_6804_height << 16): 0xbd7041e + reg_6804_width + (reg_6804_height << 16);
+        case 0xC0F06804: return (ratios == 0x1) ? 0x9420414 + reg_6804_width + (reg_6804_height << 16):
+            (ratios == 0x2) ? 0x9420414 + reg_6804_width + (reg_6804_height << 16):
+            (ratios == 0x3) ? 0xaed0414 + reg_6804_width + (reg_6804_height << 16): 0xbd70414 + reg_6804_width + (reg_6804_height << 16);
             
         case 0xC0F06824: return 0x4ca;
         case 0xC0F06828: return 0x4ca;
