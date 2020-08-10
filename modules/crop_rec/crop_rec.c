@@ -3331,11 +3331,15 @@ static inline uint32_t reg_override_2K_eosm(uint32_t reg, uint32_t old_val)
     return reg_override_bits(reg, old_val);
 }
 
+
 static inline uint32_t reg_override_3K_eosm(uint32_t reg, uint32_t old_val)
 {
+        	EngDrvOutLV(0xc0f383d4, 0x1b00af + reg_83d4);
+        	EngDrvOutLV(0xc0f383dc, 0x3d401b7 + reg_83dc);
     
     if (ratios == 0x0)
     {
+		EngDrvOutLV(0xC0F38024, 0x4530307);
         switch (reg)
         {
             case 0xC0F06804: return 0x5b90318 + reg_6804_width + (reg_6804_height << 16); // 3032x1436  x5 Mode;
@@ -3356,6 +3360,7 @@ static inline uint32_t reg_override_3K_eosm(uint32_t reg, uint32_t old_val)
     
     if ((ratios == 0x1 || ratios == 0x2) && !set_25fps)
     {
+		EngDrvOutLV(0xC0F38024, 0x45302ff);
         switch (reg)
         {
                 /* will change to 19fps for continous action */
@@ -3375,6 +3380,7 @@ static inline uint32_t reg_override_3K_eosm(uint32_t reg, uint32_t old_val)
     
     if (ratios == 0x1 && set_25fps)
     {
+		EngDrvOutLV(0xC0F38024, 0x45302b5);
         switch (reg)
         {
                 /* will change to 24fps for continous action 2.39:1 */
@@ -3394,6 +3400,7 @@ static inline uint32_t reg_override_3K_eosm(uint32_t reg, uint32_t old_val)
     
     if (ratios == 0x2 && set_25fps)
     {
+		EngDrvOutLV(0xC0F38024, 0x45302b5);
         switch (reg)
         {
                 /* will change to 24fps for continous action 2.35:1 */
@@ -3413,6 +3420,7 @@ static inline uint32_t reg_override_3K_eosm(uint32_t reg, uint32_t old_val)
     
     if (ratios == 0x3)
     {
+		EngDrvOutLV(0xC0F38024, 0x45302ff);
         switch (reg)
         {
             case 0xC0F06804: return 0x9d50310 + reg_6804_width + (reg_6804_height << 16);
