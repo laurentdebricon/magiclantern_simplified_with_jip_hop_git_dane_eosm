@@ -222,9 +222,9 @@ static const char crop_choices_help2_100d[] =
 "1:1 Movie crop mode\n"
 "3x3 binning in 720p\n"
 "regular mv1080p mode\n"
-"2K x5 crop, framing preview\n"
-"1:1 3K x5crop, framing preview\n"
-"1:1 4K x5 crop, framing preview\n";
+"2K x5 crop, real time preview\n"
+"1:1 3K x5crop, real time preview\n"
+"1:1 4K x5 crop, real time preview\n";
 //  "3:1 4K x5 crop, framing preview\n"
 //  "3:1 5K x5 crop, framing preview\n"
 
