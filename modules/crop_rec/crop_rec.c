@@ -5036,7 +5036,7 @@ static struct menu_entry crop_rec_menu[] =
 static unsigned int crop_rec_keypress_cbr(unsigned int key)
 {
     static int prevmode = 0;
-    if (!RECORDING && lv_dispsize != 10 && lv && is_movie_mode() && !gui_menu_shown() && key == MODULE_KEY_INFO && previews == 0x1)
+    if (lv_dispsize != 10 && lv && is_movie_mode() && !gui_menu_shown() && key == MODULE_KEY_INFO && previews == 0x1)
     {
         if(lv_disp_mode != 0){
             // Use INFO key to cycle LV as normal when not in the LV with ML overlays
@@ -5047,13 +5047,11 @@ static unsigned int crop_rec_keypress_cbr(unsigned int key)
         if (prevmode)
         {
             prevmode = 0;
-            NotifyBox(1000, "Real-time");
             menu_set_value_from_script("raw video", "Preview", 1);
         }
         else
         {
             prevmode = 1;
-            NotifyBox(1000, "framing");
             menu_set_value_from_script("raw video", "Preview", 2);
         }
         return 0;
