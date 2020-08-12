@@ -1357,8 +1357,21 @@ static void FAST cmos_hook(uint32_t* regs, uint32_t* stack, uint32_t pc)
             case CROP_PRESET_2K_EOSM:
                 cmos_new[7] = 0xaa9;    /* pink highlights without this */
                 break;
-                
+
             case CROP_PRESET_3K_EOSM:
+                if (get_halfshutter_pressed() && gain_buttons && !RECORDING && is_movie_mode())
+                {
+                    return;
+                }
+                cmos_new[5] = 0x280;             /* vertical (first|last) */
+                cmos_new[7] = 0xaa9;            /* horizontal offset (mask 0xFF0) */
+                if (ratios == 0x3)
+                {
+                    cmos_new[5] = 0x200;            /* vertical (first|last) */
+                    cmos_new[7] = 0xf20;
+                }
+                break;
+                
             case CROP_PRESET_28K_EOSM:
                 if (get_halfshutter_pressed() && gain_buttons && !RECORDING && is_movie_mode())
                 {
