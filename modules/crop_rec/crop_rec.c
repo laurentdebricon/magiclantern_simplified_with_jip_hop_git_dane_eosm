@@ -3463,8 +3463,8 @@ static inline uint32_t reg_override_3K_eosm(uint32_t reg, uint32_t old_val)
 
 static inline uint32_t reg_override_28K_eosm(uint32_t reg, uint32_t old_val)
 {
-        	EngDrvOutLV(0xc0f383d4, 0x1b00af + reg_83d4);
-        	EngDrvOutLV(0xc0f383dc, 0x3d401b7 + reg_83dc);
+        	EngDrvOutLV(0xc0f383d4, 0x1b00a5 + reg_83d4);
+        	EngDrvOutLV(0xc0f383dc, 0x3d401ad + reg_83dc);
     
     if (ratios == 0x1)
     {
