@@ -4739,7 +4739,7 @@ static struct menu_entry crop_rec_menu[] =
                 "14bit: lossless full HD. Push SET for x3crop mode\n"
                 "5k anamorphic 1x3 pixel binning. Push SET for x3crop mode\n"
                 "2.5k 1:1 crop \n"
-                "2.8k 1:1 crop only. 2.39:1, 2.35:1\n"
+                "2.8k 1:1 crop. Only 2.39:1, 2.35:1\n"
                 "full HD high speed frame rate. Push SET for x3crop mode\n"
                 "8bit: canon MOV mode. Push SET for x3crop mode\n"
                 "5k full liveview readout (no ratio=14fps. Ratios up to 20fps.)\n"
