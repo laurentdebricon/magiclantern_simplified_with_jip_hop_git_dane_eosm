@@ -4396,7 +4396,7 @@ static inline uint32_t reg_override_anamorphic_eosm_frtp(uint32_t reg, uint32_t 
         EngDrvOutLV(0xC0F42014, 0x709017D);
     switch (reg)
     {
-        case 0xC0F06804: return 0x713019A;
+        case 0xC0F06804: return 0x715019A;
         case 0xC0F06014: return 0x8ec + reg_6014;
         case 0xC0F0600c: return set_25fps == 0x1 ? 0x2470247 - 24 + reg_6008 + (reg_6008 << 16): 0x2470247 + reg_6008 + (reg_6008 << 16);
         case 0xC0F06008: return set_25fps == 0x1 ? 0x2470247 - 24 + reg_6008 + (reg_6008 << 16): 0x2470247 + reg_6008 + (reg_6008 << 16);
@@ -4450,12 +4450,12 @@ static inline uint32_t reg_override_center_z_eosm_1920x1280_frtp(uint32_t reg, u
              
          switch (reg)
          {
-             case 0xC0F06804: return 0x51C0202;
+             case 0xC0F06804: return 0x51e0202 + reg_6804_width + (reg_6804_height << 16);
              case 0xC0F07150: return 0x428 + reg_7150;
              case 0xC0F06014: return set_25fps == 0x1 ? 0x747 - 76 + reg_6014: 0x747 + reg_6014;
                  /* reset dummy reg in raw.c */
              case 0xC0f0b13c: return 0xf;
-             case 0xC0F0713c: return 0x525;
+             case 0xC0F0713c: return 0x527;
          }
     
     return reg_override_bits(reg, old_val);
