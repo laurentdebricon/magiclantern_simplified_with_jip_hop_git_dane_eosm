@@ -99,6 +99,7 @@ enum crop_preset {
     CROP_PRESET_3x1_mv720_50fps_EOSM,
     CROP_PRESET_CENTER_Z_EOSM,
     CROP_PRESET_CENTER_Z_EOSM_frtp,
+    CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp,
     CROP_PRESET_CENTER_Z_EOSM_hdmi,
     CROP_PRESET_3x3_1X_EOSM,
     CROP_PRESET_2K_EOSM,
@@ -247,6 +248,7 @@ static enum crop_preset crop_presets_eosm[] = {
     CROP_PRESET_CENTER_Z_EOSM_frtp,
     CROP_PRESET_CENTER_Z_EOSM_hdmi,
     CROP_PRESET_anamorphic_EOSM_frtp,
+    CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp,
     CROP_PRESET_H264,
     // CROP_PRESET_4K_3x1_EOSM,
     // CROP_PRESET_5K_3x1_EOSM,
@@ -270,6 +272,7 @@ static const char * crop_choices_eosm[] = {
     "2.5K 1:1 centered frtp",
     "2.5K 1:1 centered hdmi",
     "5K anamorphic frtp",
+    "x5crop 1920x1280 frtp",
     // "4K 3x1 24fps",
     // "5K 3x1 24fps",
     // "4K 5x1 24fps",
@@ -294,7 +297,8 @@ static const char crop_choices_help2_eosm[] =
 //"h264 MOV)\n"
 "1:1 2K x5crop, full real time preview(almost!).\n"
 "1:1 2K x5crop, full real time preview HDMI.\n"
-"1x3 anamorphic, full real time preview)\n";
+"1x3 anamorphic, full real time preview)\n"
+"x5crop, 1920x1280 full real time preview.\n";
 // "3:1 4K x5crop, framing preview\n"
 // "3:1 5K x5crop, framing preview\n"
 // "5:1 4K crop squeeze, preview broken\n"
@@ -1064,6 +1068,7 @@ static int max_resolutions[NUM_CROP_PRESETS][6] = {
     [CROP_PRESET_anamorphic_rewired_EOSM]  = { 1290, 1290, 1290,  960,  800 },
     [CROP_PRESET_anamorphic_rewired_flv_EOSM]  = { 1290, 1290, 1290,  960,  800 },
     [CROP_PRESET_anamorphic_EOSM_frtp]  = { 1290, 1290, 1290,  960,  800 },
+    [CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp]  = { 1290, 1290, 1290,  960,  800 },
 };
 
 /* 5D3 vertical resolution increments over default configuration */
@@ -1479,6 +1484,11 @@ static void FAST cmos_hook(uint32_t* regs, uint32_t* stack, uint32_t pc)
                 cmos_new[7] = 0xAA6;            /* horizontal offset (mask 0xFF0) */
                 break;
                 
+            case CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp:
+                cmos_new[5] = 0x380;             /* vertical (first|last) */
+                cmos_new[7] = 0xACB;            /* horizontal offset (mask 0xFF0) */
+                break;
+                
             case CROP_PRESET_x10_EOSM:
                 // we are already in x5zoom so already set
                 // cmos_new[5] = 0x300;
@@ -1489,6 +1499,7 @@ static void FAST cmos_hook(uint32_t* regs, uint32_t* stack, uint32_t pc)
                     if (CROP_PRESET_MENU == CROP_PRESET_3x1_mv720_50fps_EOSM) cmos_new[7] = 0xa49 - 98;
                     if (CROP_PRESET_MENU == CROP_PRESET_mcm_mv1080_EOSM) cmos_new[7] = 0xa49 - 98;
                     if (CROP_PRESET_MENU == CROP_PRESET_anamorphic_EOSM_frtp) cmos_new[7] = 0xa49 - 98;
+                    if (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp) cmos_new[7] = 0xa49 - 98;
                     if (CROP_PRESET_MENU == CROP_PRESET_3x3_mv1080_48fps_EOSM) cmos_new[7] = 0xa06;
                     if (CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_100D) cmos_new[7] = 0xa49 - 102;
                 }
@@ -2317,6 +2328,7 @@ static void FAST adtg_hook(uint32_t* regs, uint32_t* stack, uint32_t pc)
                 break;
                 
             case CROP_PRESET_anamorphic_EOSM_frtp:
+            case CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp:
                 adtg_new[2] = (struct adtg_new) {6, 0x800C, 0 + reg_800c};
                 adtg_new[3] = (struct adtg_new) {6, 0x8000, 6};
                 adtg_new[17] = (struct adtg_new) {6, 0x8183, 0x21 + reg_8183};
@@ -4397,6 +4409,58 @@ static inline uint32_t reg_override_anamorphic_eosm_frtp(uint32_t reg, uint32_t 
     return reg_override_bits(reg, old_val);
 }
 
+static inline uint32_t reg_override_center_z_eosm_1920x1280_frtp(uint32_t reg, uint32_t old_val)
+{
+             EngDrvOutLV(0xC0F09050, 0x3002D0);     /* Making LiveView somoother */
+             EngDrvOutLV(0xc0f11B9C, 0x500077F);
+             EngDrvOutLV(0xc0f1A00C, 0x500077F);
+             EngDrvOutLV(0xc0f118DC, 0x500077F);
+             EngDrvOutLV(0xc0f118E4, 0x500077F);
+             EngDrvOutLV(0xc0f11B8C, 0x250045);
+             EngDrvOutLV(0xc0f11BCC, 0x250044);
+             EngDrvOutLV(0xc0f11BC8, 0x0);
+             EngDrvOutLV(0xC0F3B0DC, 0x50007CF);
+             EngDrvOutLV(0xC0F3B074, 0x50007D7);
+             EngDrvOutLV(0xC0F3B070, 0x50607D7);
+             EngDrvOutLV(0xC0F3B054, 0x5060787);
+             EngDrvOutLV(0xC0F3A0B0, 0x50A0788);
+             EngDrvOutLV(0xC0F3A0A0, 0x50A078B);
+             EngDrvOutLV(0xC0F3A04C, 0x50601E5);
+             EngDrvOutLV(0xC0F389EC, 0x1E60001);
+             EngDrvOutLV(0xC0F389E4, 0x50701E7);
+             EngDrvOutLV(0xC0F389D4, 0x50601E5);
+             EngDrvOutLV(0xC0F389B4, 0x50701E6);
+             EngDrvOutLV(0xC0F389A4, 0x50601E5);
+             EngDrvOutLV(0xC0F38960, 0x5060000);
+             EngDrvOutLV(0xC0F38934, 0x50601E5);
+             EngDrvOutLV(0xC0F380A4, 0x1E70000);
+             EngDrvOutLV(0xC0F380A0, 0x1E70000);
+             EngDrvOutLV(0xC0F38094, 0x50A0000);
+             EngDrvOutLV(0xC0F38084, 0x1E70000);
+             EngDrvOutLV(0xC0F38080, 0x5070002);
+             EngDrvOutLV(0xC0F3807C, 0x1E50000);
+             EngDrvOutLV(0xC0F38078, 0x1E60001);
+             EngDrvOutLV(0xC0F38070, 0x50901E5);
+             EngDrvOutLV(0xC0F383D4, 0x1b000C);
+             EngDrvOutLV(0xC0F383DC, 0x55301F2);
+             EngDrvOutLV(0xC0F38024, 0x7E401F1);
+             EngDrvOutLV(0xC0F42194, 0x1E5);
+             EngDrvOutLV(0xC0F4204C, 0x50901E5);
+             EngDrvOutLV(0xC0F42014, 0x50901E5);
+             
+         switch (reg)
+         {
+             case 0xC0F06804: return 0x51C0202;
+             case 0xC0F07150: return 0x428 + reg_7150;
+             case 0xC0F06014: return set_25fps == 0x1 ? 0x747 - 76 + reg_6014: 0x747 + reg_6014;
+                 /* reset dummy reg in raw.c */
+             case 0xC0f0b13c: return 0xf;
+             case 0xC0F0713c: return 0x525;
+         }
+    
+    return reg_override_bits(reg, old_val);
+}
+
 static inline uint32_t reg_override_zoom_fps(uint32_t reg, uint32_t old_val)
 {
     /* attempt to reconfigure the x5 zoom at the FPS selected in Canon menu */
@@ -4448,6 +4512,7 @@ static void * get_engio_reg_override_func()
     (crop_preset == CROP_PRESET_anamorphic_rewired_100D) ? reg_override_anamorphic_rewired_100d        :
     (crop_preset == CROP_PRESET_CENTER_Z_EOSM) ? reg_override_center_z_eosm        :
     (crop_preset == CROP_PRESET_CENTER_Z_EOSM_frtp) ? reg_override_center_z_eosm_frtp        :
+    (crop_preset == CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp) ? reg_override_center_z_eosm_1920x1280_frtp        :
     (crop_preset == CROP_PRESET_CENTER_Z_EOSM_hdmi) ? reg_override_center_z_eosm_hdmi        :
     (crop_preset == CROP_PRESET_2K_EOSM)         ? reg_override_2K_eosm         :
     (crop_preset == CROP_PRESET_3K_EOSM)         ? reg_override_3K_eosm         :
@@ -5830,7 +5895,7 @@ static int crop_rec_needs_lv_refresh()
         if (presets == 0x6)
         {
             NotifyBox(2000, "h264 8bit");
-            crop_preset_index = 12;
+            crop_preset_index = 13;
             presets = 0;
             bitdepth = 0x0;
             menu_set_str_value_from_script("Movie", "raw video", "OFF", 1);
@@ -5927,6 +5992,7 @@ static int crop_rec_needs_lv_refresh()
     /* let´s automate liveview start off setting */
     if ((CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM) ||
         (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_frtp) ||
+        (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp) ||
         (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_hdmi) ||
         (CROP_PRESET_MENU == CROP_PRESET_anamorphic_EOSM_frtp) ||
         (CROP_PRESET_MENU == CROP_PRESET_2K_100D) ||
@@ -6165,7 +6231,7 @@ static void iso3()
 /* when closing ML menu, check whether we need to refresh the LiveView */
 static unsigned int crop_rec_polling_cbr(unsigned int unused)
 {
-    if (gremag && crop_preset_index != 12)
+    if (gremag && crop_preset_index != 13)
     {
         menu_set_str_value_from_script("White Balance", "WBShift G/M", "0", 1);
         menu_set_str_value_from_script("White Balance", "WBShift B/A", "0", 1);
@@ -6180,7 +6246,7 @@ static unsigned int crop_rec_polling_cbr(unsigned int unused)
         iso2();
         
         /* working h264 */
-        if (crop_preset_index == 12)
+        if (crop_preset_index == 13)
         {
             iso3();
         }
@@ -6436,6 +6502,7 @@ static unsigned int crop_rec_polling_cbr(unsigned int unused)
                     CROP_PRESET_MENU == CROP_PRESET_anamorphic_EOSM_frtp ||
                     CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM ||
                     CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_frtp ||
+                    CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp ||
                     CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_hdmi ||
                     CROP_PRESET_MENU == CROP_PRESET_2K_EOSM ||
                     CROP_PRESET_MENU == CROP_PRESET_3K_EOSM ||
@@ -6498,6 +6565,7 @@ static unsigned int crop_rec_polling_cbr(unsigned int unused)
                     CROP_PRESET_MENU == CROP_PRESET_28K_EOSM ||
                     CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM ||
                     CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_frtp ||
+                    CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp ||
                     CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_hdmi ||
                     CROP_PRESET_MENU == CROP_PRESET_anamorphic_EOSM_frtp ||
                     CROP_PRESET_MENU == CROP_PRESET_4K_EOSM)
@@ -6536,14 +6604,14 @@ static unsigned int crop_rec_polling_cbr(unsigned int unused)
     }
     
     //make sure it´s reset if not pushing halfshutter long enough
-    if (zoomaid && shamem_read(0xc0f06804) == 0x4a601d4 && crop_preset_index != 12)
+    if (zoomaid && shamem_read(0xc0f06804) == 0x4a601d4 && crop_preset_index != 13)
     {
         PauseLiveView();
         ResumeLiveView();
     }
     
     //make sure it´s reset if not pushing halfshutter long enough
-    if (zoomaid && crop_patch2 && crop_preset_index != 12)
+    if (zoomaid && crop_patch2 && crop_preset_index != 13)
     {
         crop_patch2 = 0;
         reset = 1;
@@ -6650,6 +6718,7 @@ static unsigned int crop_rec_polling_cbr(unsigned int unused)
     
     if (((CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM) ||
          (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_frtp) ||
+         (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp) ||
          (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_hdmi) ||
          (CROP_PRESET_MENU == CROP_PRESET_anamorphic_EOSM_frtp) ||
          (CROP_PRESET_MENU == CROP_PRESET_2K_100D) ||
@@ -6872,6 +6941,11 @@ static LVINFO_UPDATE_FUNC(crop_info)
         snprintf(buffer, sizeof(buffer), "2.5K centered");
     }
     
+    if (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp)
+    {
+        snprintf(buffer, sizeof(buffer), "1920x1280 1:1");
+    }
+        
     if (CROP_PRESET_MENU == CROP_PRESET_3K_EOSM)
     {
         snprintf(buffer, sizeof(buffer), "3k 1:1");
