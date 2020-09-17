@@ -123,7 +123,13 @@ static CONFIG_INT("raw.dolly", dolly_mode, 0);
 #define FRAMING_CENTER (dolly_mode == 0)
 #define FRAMING_PANNING (dolly_mode == 1)
 
+<<<<<<< HEAD
 static CONFIG_INT("raw.preview", preview_mode, 0);
+=======
+static CONFIG_INT("raw.CropRecPreview", prevmode, 0);
+
+static CONFIG_INT("raw.preview", preview_mode, 1);
+>>>>>>> de9719448 (crop_rec.c,mlv_lite.c:(EOSM turn off prevmode auto and sticky push auto config))
 #define PREVIEW_AUTO   (preview_mode == 0)
 #define PREVIEW_CANON  (preview_mode == 1)
 #define PREVIEW_ML     (preview_mode == 2)

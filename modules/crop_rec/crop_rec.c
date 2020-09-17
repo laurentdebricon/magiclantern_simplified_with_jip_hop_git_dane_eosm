@@ -46,7 +46,7 @@ static CONFIG_INT("crop.ratios", ratios, 1);
 static CONFIG_INT("crop.x3crop", x3crop, 0);
 static CONFIG_INT("crop.flvtl", flvtl, 0);
 static CONFIG_INT("crop.flvtl4k", flvtl4k, 0);
-static CONFIG_INT("crop.zoomaid", zoomaid, 2);
+static CONFIG_INT("crop.zoomaid", zoomaid, 0);
 static CONFIG_INT("crop.x3toggle", x3toggle, 2);
 static CONFIG_INT("crop.set_25fps", set_25fps, 0);
 static CONFIG_INT("crop.framestop", framestop, 0);
