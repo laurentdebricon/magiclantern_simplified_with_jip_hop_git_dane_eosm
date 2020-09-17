@@ -2331,8 +2331,6 @@ static void FAST adtg_hook(uint32_t* regs, uint32_t* stack, uint32_t pc)
             case CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp:
                 adtg_new[2] = (struct adtg_new) {6, 0x800C, 0 + reg_800c};
                 adtg_new[3] = (struct adtg_new) {6, 0x8000, 6};
-                adtg_new[17] = (struct adtg_new) {6, 0x8183, 0x21 + reg_8183};
-                adtg_new[18] = (struct adtg_new) {6, 0x8184, 0x7b + reg_8184};
                 break;
                 
                 /* 3x1 binning (bin every 3 lines, read every column) */
