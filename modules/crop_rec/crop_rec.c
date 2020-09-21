@@ -2499,28 +2499,7 @@ static inline uint32_t reg_override_bits(uint32_t reg, uint32_t old_val)
             EngDrvOutLV(0xC0F37B08, 0x20200);
         }
     }
-    
-    if (lens_info.iso_analog_raw == ISO_400)
-    {
-        EngDrvOutLV(0xC0F0819C, 0xC39);
-    }
-    if (lens_info.iso_analog_raw == ISO_800)
-    {
-        EngDrvOutLV(0xC0F0819C, 0xC3C);
-    }
-    if (lens_info.iso_analog_raw == ISO_1600)
-    {
-        EngDrvOutLV(0xC0F0819C, 0xC41);
-    }
-    if (lens_info.iso_analog_raw == ISO_3200)
-    {
-        EngDrvOutLV(0xC0F0819C, 0xC4A);
-    }
-    if (lens_info.raw_iso == ISO_6400)
-    {
-        EngDrvOutLV(0xC0F0819C, 0xC5F);
-    }
-    
+        
     /*
     if (CROP_PRESET_MENU != CROP_PRESET_3x3_mv1080_48fps_EOSM && CROP_PRESET_MENU != CROP_PRESET_anamorphic_rewired_EOSM && CROP_PRESET_MENU != CROP_PRESET_anamorphic_rewired_flv_EOSM && RECORDING && bitdepth != 0x0 && (is_EOSM || is_100D))
     {
