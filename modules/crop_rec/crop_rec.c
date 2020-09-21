@@ -2212,19 +2212,19 @@ static void FAST adtg_hook(uint32_t* regs, uint32_t* stack, uint32_t pc)
             if (OUTPUT_10BIT)
             {
                 /* 10bit roundtrip only not applied here with following set ups */
-                adtg_new[13] = (struct adtg_new) {6, 0x8882, 60 + reg_gain};
-                adtg_new[14] = (struct adtg_new) {6, 0x8884, 60 + reg_gain};
-                adtg_new[15] = (struct adtg_new) {6, 0x8886, 60 + reg_gain};
-                adtg_new[16] = (struct adtg_new) {6, 0x8888, 60 + reg_gain};
+                adtg_new[13] = (struct adtg_new) {2, 0x8882, 0x31};
+                adtg_new[14] = (struct adtg_new) {2, 0x8884, 0x31};
+                adtg_new[15] = (struct adtg_new) {2, 0x8886, 0x31};
+                adtg_new[16] = (struct adtg_new) {2, 0x8888, 0x31};
             }
             
             if (OUTPUT_12BIT)
             {
                 /* 12bit roundtrip only not applied here with following set ups */
-                adtg_new[13] = (struct adtg_new) {6, 0x8882, 250 + reg_gain};
-                adtg_new[14] = (struct adtg_new) {6, 0x8884, 250 + reg_gain};
-                adtg_new[15] = (struct adtg_new) {6, 0x8886, 250 + reg_gain};
-                adtg_new[16] = (struct adtg_new) {6, 0x8888, 250 + reg_gain};
+                adtg_new[13] = (struct adtg_new) {2, 0x8882, 0x112};
+                adtg_new[14] = (struct adtg_new) {2, 0x8884, 0x112};
+                adtg_new[15] = (struct adtg_new) {2, 0x8886, 0x112};
+                adtg_new[16] = (struct adtg_new) {2, 0x8888, 0x112};
             }
             
         }
@@ -2477,20 +2477,47 @@ static inline uint32_t reg_override_bits(uint32_t reg, uint32_t old_val)
     {
         if (OUTPUT_10BIT)
         {
-            EngDrvOutLV(0xC0F42744, 0x4040404);
+            EngDrvOutLV(0xC0F37AE4, 0x50200);
+            EngDrvOutLV(0xC0F37AF0, 0x50200);
+            EngDrvOutLV(0xC0F37AFC, 0x50200);
+            EngDrvOutLV(0xC0F37B08, 0x50200);
         }
         
         if (OUTPUT_12BIT)
         {
-            EngDrvOutLV(0xC0F42744, 0x2020202);
+            EngDrvOutLV(0xC0F37AE4, 0x20200);
+            EngDrvOutLV(0xC0F37AF0, 0x20200);
+            EngDrvOutLV(0xC0F37AFC, 0x20200);
+            EngDrvOutLV(0xC0F37B08, 0x20200);
         }
     }
     
+    if (lens_info.iso_analog_raw == ISO_400)
+    {
+        EngDrvOutLV(0xC0F0819C, 0xC39);
+    }
+    if (lens_info.iso_analog_raw == ISO_800)
+    {
+        EngDrvOutLV(0xC0F0819C, 0xC3C);
+    }
+    if (lens_info.iso_analog_raw == ISO_1600)
+    {
+        EngDrvOutLV(0xC0F0819C, 0xC41);
+    }
+    if (lens_info.iso_analog_raw == ISO_3200)
+    {
+        EngDrvOutLV(0xC0F0819C, 0xC4A);
+    }
+    if (lens_info.raw_iso == ISO_6400)
+    {
+        EngDrvOutLV(0xC0F0819C, 0xC5F);
+    }
     
+    /*
     if (CROP_PRESET_MENU != CROP_PRESET_3x3_mv1080_48fps_EOSM && CROP_PRESET_MENU != CROP_PRESET_anamorphic_rewired_EOSM && CROP_PRESET_MENU != CROP_PRESET_anamorphic_rewired_flv_EOSM && RECORDING && bitdepth != 0x0 && (is_EOSM || is_100D))
     {
-        /* correcting black level a bit. Compensating greenish tint. Only affects preview, not recordings */
-        if (lens_info.raw_iso != 0x48 && lens_info.raw_iso_auto > 0x4e) /* iso 100 excluded, breaks */
+        // correcting black level a bit. Compensating greenish tint. Only affects preview, not recordings
+        if (lens_info.raw_iso != 0x48 && lens_info.raw_iso_auto > 0x4e) // iso 100 excluded, breaks
         {
             EngDrvOutLV(0xc0f37aec, 0x73ca + reg_bl);
             EngDrvOutLV(0xc0f37af8, 0x73ca + reg_bl);
@@ -2498,6 +2525,7 @@ static inline uint32_t reg_override_bits(uint32_t reg, uint32_t old_val)
             EngDrvOutLV(0xc0f37ae0, 0x73ca + reg_bl);
         }
     }
+    */
     
     if (is_EOSM && !RECORDING)
     {
