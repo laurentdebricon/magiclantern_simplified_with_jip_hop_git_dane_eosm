@@ -4578,11 +4578,11 @@ static inline uint32_t reg_override_anamorphic_eosm_2_1_frtp(uint32_t reg, uint3
     switch (reg)
     {
         case 0xC0F06804: return 0x7D40176;
-        case 0xC0F06014: return 0x8ec + reg_6014;
-        case 0xC0F0600c: return set_25fps == 0x1 ? 0x2470247 - 24 + reg_6008 + (reg_6008 << 16): 0x2470247 + reg_6008 + (reg_6008 << 16);
-        case 0xC0F06008: return set_25fps == 0x1 ? 0x2470247 - 24 + reg_6008 + (reg_6008 << 16): 0x2470247 + reg_6008 + (reg_6008 << 16);
-        case 0xC0F06010: return set_25fps == 0x1 ? 0x247 - 24 + reg_6008: 0x247 + reg_6008;
-        case 0xC0F0713c: return 0x7c5;
+        case 0xC0F06014: return 0xa10 + reg_6014;
+        case 0xC0F0600c: return set_25fps == 0x1 ? 0x2050205 - 24 + reg_6008 + (reg_6008 << 16): 0x2050205 + reg_6008 + (reg_6008 << 16);
+        case 0xC0F06008: return set_25fps == 0x1 ? 0x2050205 - 24 + reg_6008 + (reg_6008 << 16): 0x2050205 + reg_6008 + (reg_6008 << 16);
+        case 0xC0F06010: return set_25fps == 0x1 ? 0x205 - 24 + reg_6008: 0x205 + reg_6008;
+        case 0xC0F0713c: return 0x7d4;
     //reset dummy reg in raw.c
         case 0xC0f0b13c: return 0x11;
     }
