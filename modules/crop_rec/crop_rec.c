@@ -4491,12 +4491,12 @@ if (ratios == 3)
 {
     switch (reg)
     {
-        case 0xC0F06804: return 0x88C0162;
+        case 0xC0F06804: return 0x88C0162 + reg_6804_width + (reg_6804_height << 16);
         case 0xC0F06014: return 0xa10 + reg_6014;
         case 0xC0F0600c: return set_25fps == 0x1 ? 0x2050205 - 24 + reg_6008 + (reg_6008 << 16): 0x2050205 + reg_6008 + (reg_6008 << 16);
         case 0xC0F06008: return set_25fps == 0x1 ? 0x2050205 - 24 + reg_6008 + (reg_6008 << 16): 0x2050205 + reg_6008 + (reg_6008 << 16);
         case 0xC0F06010: return set_25fps == 0x1 ? 0x205 - 24 + reg_6008: 0x205 + reg_6008;
-        case 0xC0F0713c: return 0x88c;
+        case 0xC0F0713c: return 0x88c + reg_713c;
     }
 }
     
@@ -4504,12 +4504,12 @@ if (ratios == 1 || ratios == 2)
 {
     switch (reg)
     {
-        case 0xC0F06804: return 0x748018A;
+        case 0xC0F06804: return 0x748018A + reg_6804_width + (reg_6804_height << 16);
         case 0xC0F06014: return 0x8ec + reg_6014;
         case 0xC0F0600c: return set_25fps == 0x1 ? 0x2470247 - 24 + reg_6008 + (reg_6008 << 16): 0x2470247 + reg_6008 + (reg_6008 << 16);
         case 0xC0F06008: return set_25fps == 0x1 ? 0x2470247 - 24 + reg_6008 + (reg_6008 << 16): 0x2470247 + reg_6008 + (reg_6008 << 16);
         case 0xC0F06010: return set_25fps == 0x1 ? 0x247 - 24 + reg_6008: 0x247 + reg_6008;
-        case 0xC0F0713c: return 0x755;
+        case 0xC0F0713c: return 0x755 + reg_713c;
     }
 }
     
@@ -4517,12 +4517,12 @@ if (!ratios)
 {
     switch (reg)
     {
-        case 0xC0F06804: return 0x7D40176;
+        case 0xC0F06804: return 0x7D40176 + reg_6804_width + (reg_6804_height << 16);
         case 0xC0F06014: return 0xa10 + reg_6014;
         case 0xC0F0600c: return set_25fps == 0x1 ? 0x2050205 - 24 + reg_6008 + (reg_6008 << 16): 0x2050205 + reg_6008 + (reg_6008 << 16);
         case 0xC0F06008: return set_25fps == 0x1 ? 0x2050205 - 24 + reg_6008 + (reg_6008 << 16): 0x2050205 + reg_6008 + (reg_6008 << 16);
         case 0xC0F06010: return set_25fps == 0x1 ? 0x205 - 24 + reg_6008: 0x205 + reg_6008;
-        case 0xC0F0713c: return 0x7d4;
+        case 0xC0F0713c: return 0x7d4 + reg_713c;
     }
 }
     
@@ -4919,18 +4919,19 @@ static struct menu_entry crop_rec_menu[] =
             {
                 .name   = "startoff presets",
                 .priv   = &presets,
-                .max    = 8,
-                .choices = CHOICES("None selected", "HD 1080p", "5k anamorphic", "2.5k 1:1 crop", "2.8k 1:1 crop", "HD 1080p hf", "h264 8bit","5k anamorphic flv", "default reset"),
+                .max    = 9,
+                .choices = CHOICES("None selected", "HD 1080p", "5k anamorphic", "5k anamorphic frtp", "2.5k 1:1 crop", "2.8k 1:1 crop", "HD 1080p hf", "h264 8bit","5k anamorphic flv", "default reset"),
                 .help   = "2.39:1 ratio recommended for anamorphic and higher resolutions",
                 .help2  ="passthrough\n"
-                "14bit: lossless full HD. Push SET for x3crop mode\n"
-                "5k anamorphic 1x3 pixel binning. Push SET for x3crop mode\n"
-                "2.5k 1:1 crop \n"
-                "2.8k 1:1 crop. Only 2.39:1, 2.35:1\n"
-                "full HD high speed frame rate. Push SET for x3crop mode\n"
-                "8bit: canon MOV mode. Push SET for x3crop mode\n"
-                "5k full liveview readout (no ratio=14fps. Ratios up to 20fps.)\n"
-                "resets to HD 1080p 2.39:1 14bit lossless mode\n"
+                "14bit: lossless full HD. Push SET for x3crop mode.\n"
+                "5k anamorphic 1x3 pixel binning. Push SET for x3crop mode.\n"
+                "5k anamorphic full realtime preview. Use with cropmarks. Only 24fps.\n"
+                "2.5k 1:1 crop.\n"
+                "2.8k 1:1 crop. Only 2.39:1, 2.35:1.\n"
+                "full HD high speed frame rate. Push SET for x3crop mode.\n"
+                "8bit: canon MOV mode. Push SET for x3crop mode.\n"
+                "5k full liveview readout (no ratio=14fps. Ratios up to 20fps.).\n"
+                "resets to HD 1080p 2.39:1 14bit lossless mode.\n"
             },
             {
                 .name   = "x3crop",
@@ -5969,6 +5970,26 @@ static int crop_rec_needs_lv_refresh()
         
         if (presets == 0x3)
         {
+            NotifyBox(2000, "5k anamorphic frtp 10bit");
+            crop_preset_index = 12;
+            presets = 0;
+            bitdepth = 0x1;
+            menu_set_str_value_from_script("Movie", "raw video", "ON", 1);
+            menu_set_str_value_from_script("raw video", "Crop rec preview", "OFF", 1);
+            menu_set_str_value_from_script("raw video", "Preview", "Real-time", 1);
+            msleep(200);
+            set_lv_zoom(1);
+            PauseLiveView();
+            msleep(100);
+            ResumeLiveView();
+            movie_crop_hack_disable();
+            release = 0;
+            release_b = 0;
+            return 0;
+        }
+        
+        if (presets == 0x4)
+        {
             NotifyBox(2000, "2.5k 1x1 crop 12bit");
             crop_preset_index = 3;
             presets = 0;
@@ -5984,7 +6005,7 @@ static int crop_rec_needs_lv_refresh()
             return 0;
         }
 
-        if (presets == 0x4)
+        if (presets == 0x5)
         {
             NotifyBox(2000, "2.8k 1x1 crop 10bit");
             crop_preset_index = 8;
@@ -6001,7 +6022,7 @@ static int crop_rec_needs_lv_refresh()
             return 0;
         }
         
-        if (presets == 0x5)
+        if (presets == 0x6)
         {
             NotifyBox(2000, "HD 1080p high speed fps 12bit");
             crop_preset_index = 1;
@@ -6018,7 +6039,7 @@ static int crop_rec_needs_lv_refresh()
             return 0;
         }
                 
-        if (presets == 0x6)
+        if (presets == 0x7)
         {
             NotifyBox(2000, "h264 8bit");
             crop_preset_index = 13;
@@ -6039,7 +6060,7 @@ static int crop_rec_needs_lv_refresh()
             return 0;
         }
         
-        if (presets == 0x7)
+        if (presets == 0x8)
         {
             NotifyBox(2000, "5k anamorphic full sensor readout");
             crop_preset_index = 7;
@@ -6057,7 +6078,7 @@ static int crop_rec_needs_lv_refresh()
             return 0;
         }
         
-        if (presets == 0x8)
+        if (presets == 0x9)
         {
             NotifyBox(2000, "default reset");
             crop_preset_index = 0;
@@ -7041,16 +7062,7 @@ static LVINFO_UPDATE_FUNC(crop_info)
     
     if (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp)
     {
-        snprintf(buffer, sizeof(buffer), "5K anamorphic");
-        if (ratios == 0x1 || ratios == 0x2)
-        {
-            snprintf(buffer, sizeof(buffer), "5K anamorphic");
-        }
-        if (ratios == 0x3)
-        {
-            snprintf(buffer, sizeof(buffer), "3.5K anamorphic");
-        }
-        
+        snprintf(buffer, sizeof(buffer), "Anamorphic frtp");
     }
         
     if (CROP_PRESET_MENU == CROP_PRESET_2K_EOSM)
