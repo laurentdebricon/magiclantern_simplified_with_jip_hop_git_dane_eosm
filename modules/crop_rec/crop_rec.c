@@ -4493,9 +4493,9 @@ if (ratios == 3)
     {
         case 0xC0F06804: return 0x88C0162 + reg_6804_width + (reg_6804_height << 16);
         case 0xC0F06014: return 0xa10 + reg_6014;
-        case 0xC0F0600c: return set_25fps == 0x1 ? 0x2050205 - 24 + reg_6008 + (reg_6008 << 16): 0x2050205 + reg_6008 + (reg_6008 << 16);
-        case 0xC0F06008: return set_25fps == 0x1 ? 0x2050205 - 24 + reg_6008 + (reg_6008 << 16): 0x2050205 + reg_6008 + (reg_6008 << 16);
-        case 0xC0F06010: return set_25fps == 0x1 ? 0x205 - 24 + reg_6008: 0x205 + reg_6008;
+        case 0xC0F0600c: return 0x2050205 + reg_6008 + (reg_6008 << 16);
+        case 0xC0F06008: return 0x2050205 + reg_6008 + (reg_6008 << 16);
+        case 0xC0F06010: return 0x205 + reg_6008;
         case 0xC0F0713c: return 0x88c + reg_713c;
     }
 }
@@ -4506,9 +4506,9 @@ if (ratios == 1 || ratios == 2)
     {
         case 0xC0F06804: return 0x748018A + reg_6804_width + (reg_6804_height << 16);
         case 0xC0F06014: return 0x8ec + reg_6014;
-        case 0xC0F0600c: return set_25fps == 0x1 ? 0x2470247 - 24 + reg_6008 + (reg_6008 << 16): 0x2470247 + reg_6008 + (reg_6008 << 16);
-        case 0xC0F06008: return set_25fps == 0x1 ? 0x2470247 - 24 + reg_6008 + (reg_6008 << 16): 0x2470247 + reg_6008 + (reg_6008 << 16);
-        case 0xC0F06010: return set_25fps == 0x1 ? 0x247 - 24 + reg_6008: 0x247 + reg_6008;
+        case 0xC0F0600c: return 0x2470247 + reg_6008 + (reg_6008 << 16);
+        case 0xC0F06008: return 0x2470247 + reg_6008 + (reg_6008 << 16);
+        case 0xC0F06010: return 0x247 + reg_6008;
         case 0xC0F0713c: return 0x755 + reg_713c;
     }
 }
@@ -4519,9 +4519,9 @@ if (!ratios)
     {
         case 0xC0F06804: return 0x7D40176 + reg_6804_width + (reg_6804_height << 16);
         case 0xC0F06014: return 0xa10 + reg_6014;
-        case 0xC0F0600c: return set_25fps == 0x1 ? 0x2050205 - 24 + reg_6008 + (reg_6008 << 16): 0x2050205 + reg_6008 + (reg_6008 << 16);
-        case 0xC0F06008: return set_25fps == 0x1 ? 0x2050205 - 24 + reg_6008 + (reg_6008 << 16): 0x2050205 + reg_6008 + (reg_6008 << 16);
-        case 0xC0F06010: return set_25fps == 0x1 ? 0x205 - 24 + reg_6008: 0x205 + reg_6008;
+        case 0xC0F0600c: return 0x2050205 + reg_6008 + (reg_6008 << 16);
+        case 0xC0F06008: return 0x2050205 + reg_6008 + (reg_6008 << 16);
+        case 0xC0F06010: return 0x205 + reg_6008;
         case 0xC0F0713c: return 0x7d4 + reg_713c;
     }
 }
