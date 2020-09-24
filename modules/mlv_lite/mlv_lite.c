@@ -252,6 +252,43 @@ static void refresh_cropmarks()
         
         set_movie_cropmarks(x, y, w, h);
     }
+<<<<<<< HEAD
+=======
+    }
+    
+    if (lv_dispsize == 5 && shamem_read(0xC0F06804) == 0x748018A) //anamorphic 2.35:1 and 2.39:1 frtp
+    {
+
+        int x = RAW2BM_X(0);
+        int y = RAW2BM_Y(0);
+        int w = RAW2BM_DX(1032);
+        int h = RAW2BM_DY(432);
+       
+        set_movie_cropmarks(x, y, w, h);
+    }
+    
+    if (lv_dispsize == 5 && shamem_read(0xC0F06804) == 0x88C0162) //anamorphic 16:9 frtp
+    {
+
+        int x = RAW2BM_X(0);
+        int y = RAW2BM_Y(0);
+        int w = RAW2BM_DX(1032);
+        int h = RAW2BM_DY(562);
+       
+        set_movie_cropmarks(x, y, w, h);
+    }
+    
+    if (lv_dispsize == 5 && shamem_read(0xC0F06804) == 0x7D40176) //anamorphic 2:1 frtp
+    {
+
+        int x = RAW2BM_X(0);
+        int y = RAW2BM_Y(0);
+        int w = RAW2BM_DX(1032);
+        int h = RAW2BM_DY(485);
+       
+        set_movie_cropmarks(x, y, w, h);
+    }
+>>>>>>> 40e0f63b5 (mlv_lite.c:(EOSM cropmarks automation anamorphic frtp))
 }
 
 static int calc_res_y(int res_x, int max_res_y, int num, int den, float squeeze)
