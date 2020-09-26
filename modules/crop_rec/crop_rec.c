@@ -99,7 +99,7 @@ enum crop_preset {
     CROP_PRESET_3x1_mv720_50fps_EOSM,
     CROP_PRESET_CENTER_Z_EOSM,
     CROP_PRESET_CENTER_Z_EOSM_frtp,
-    CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp,
+    CROP_PRESET_CENTER_Z_EOSM_1920x1276_frtp,
     CROP_PRESET_CENTER_Z_EOSM_hdmi,
     CROP_PRESET_3x3_1X_EOSM,
     CROP_PRESET_2K_EOSM,
@@ -247,7 +247,7 @@ static enum crop_preset crop_presets_eosm[] = {
     CROP_PRESET_28K_EOSM,
     CROP_PRESET_CENTER_Z_EOSM_frtp,
     CROP_PRESET_CENTER_Z_EOSM_hdmi,
-    CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp,
+    CROP_PRESET_CENTER_Z_EOSM_1920x1276_frtp,
     CROP_PRESET_Anamorphic_EOSM_frtp,
     CROP_PRESET_H264,
     // CROP_PRESET_4K_3x1_EOSM,
@@ -271,7 +271,7 @@ static const char * crop_choices_eosm[] = {
     //"h264",
     "2.5K 1:1 centered frtp",
     "2.5K 1:1 centered hdmi",
-    "x5crop 1920x1280 frtp",
+    "x5crop 1920x1276 frtp",
     "5K anamorphic frtp",
     // "4K 3x1 24fps",
     // "5K 3x1 24fps",
@@ -297,7 +297,7 @@ static const char crop_choices_help2_eosm[] =
 //"h264 MOV)\n"
 "1:1 2K x5crop, full real time preview(almost!).\n"
 "1:1 2K x5crop, full real time preview HDMI.\n"
-"x5crop, 1920x1280 full real time preview.\n"
+"x5crop, 1920x1276 full real time preview.\n"
 "1x3 anamorphic, full real time preview\n";
 // "3:1 4K x5crop, framing preview\n"
 // "3:1 5K x5crop, framing preview\n"
@@ -635,6 +635,13 @@ static inline void FAST calc_skip_offsets(int * p_skip_left, int * p_skip_right,
                 skip_top        = 28;
                 skip_bottom     = 26;
             }
+            break;
+            
+        case CROP_PRESET_CENTER_Z_EOSM_1920x1276_frtp:
+            skip_left       = 72;
+            skip_right      = 0;
+            skip_top        = 28;
+            skip_bottom     = 4;
             break;
             
         case CROP_PRESET_CENTER_Z_EOSM:
@@ -1059,7 +1066,7 @@ static int max_resolutions[NUM_CROP_PRESETS][6] = {
     [CROP_PRESET_anamorphic_rewired_EOSM]  = { 1290, 1290, 1290,  960,  800 },
     [CROP_PRESET_anamorphic_rewired_flv_EOSM]  = { 1290, 1290, 1290,  960,  800 },
     [CROP_PRESET_Anamorphic_EOSM_frtp]  = { 1290, 1290, 1290,  960,  800 },
-    [CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp]  = { 1290, 1290, 1290,  960,  800 },
+    [CROP_PRESET_CENTER_Z_EOSM_1920x1276_frtp]  = { 1290, 1290, 1290,  960,  800 },
 };
 
 /* 5D3 vertical resolution increments over default configuration */
@@ -1488,7 +1495,7 @@ static void FAST cmos_hook(uint32_t* regs, uint32_t* stack, uint32_t pc)
             }
             break;
                 
-            case CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp:
+            case CROP_PRESET_CENTER_Z_EOSM_1920x1276_frtp:
                 cmos_new[5] = 0x380;             /* vertical (first|last) */
                 cmos_new[7] = 0xACA;
                 break;
@@ -1503,7 +1510,7 @@ static void FAST cmos_hook(uint32_t* regs, uint32_t* stack, uint32_t pc)
                     if (CROP_PRESET_MENU == CROP_PRESET_3x1_mv720_50fps_EOSM) cmos_new[7] = 0xa49 - 98;
                     if (CROP_PRESET_MENU == CROP_PRESET_mcm_mv1080_EOSM) cmos_new[7] = 0xa49 - 98;
                     if (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp) cmos_new[7] = 0xa49 - 98;
-                    if (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp) cmos_new[7] = 0xa49 - 98;
+                    if (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1276_frtp) cmos_new[7] = 0xa49 - 98;
                     if (CROP_PRESET_MENU == CROP_PRESET_3x3_mv1080_48fps_EOSM) cmos_new[7] = 0xa06;
                     if (CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_100D) cmos_new[7] = 0xa49 - 102;
                 }
@@ -4568,7 +4575,7 @@ if (!ratios)
     return reg_override_bits(reg, old_val);
 }
 
-static inline uint32_t reg_override_center_z_eosm_1920x1280_frtp(uint32_t reg, uint32_t old_val)
+static inline uint32_t reg_override_center_z_eosm_1920x1276_frtp(uint32_t reg, uint32_t old_val)
 {
              EngDrvOutLV(0xC0F09050, 0x3002D0);     /* Making LiveView somoother */
              EngDrvOutLV(0xc0f11B9C, 0x500077F);
@@ -4609,10 +4616,10 @@ static inline uint32_t reg_override_center_z_eosm_1920x1280_frtp(uint32_t reg, u
              
          switch (reg)
          {
-             case 0xC0F06804: return 0x51e0202 + reg_6804_width + (reg_6804_height << 16);
+             case 0xC0F06804: return 0x51c0202 + reg_6804_width + (reg_6804_height << 16);
              case 0xC0F07150: return 0x428 + reg_7150;
              case 0xC0F06014: return set_25fps == 0x1 ? 0x747 - 76 + reg_6014: 0x747 + reg_6014;
-             case 0xC0F0713c: return 0x527;
+             case 0xC0F0713c: return 0x525;
                  /* reset dummy reg in raw.c */
              case 0xC0f0b13c: return 0xf;
          }
@@ -4671,7 +4678,7 @@ static void * get_engio_reg_override_func()
     (crop_preset == CROP_PRESET_anamorphic_rewired_100D) ? reg_override_anamorphic_rewired_100d        :
     (crop_preset == CROP_PRESET_CENTER_Z_EOSM) ? reg_override_center_z_eosm        :
     (crop_preset == CROP_PRESET_CENTER_Z_EOSM_frtp) ? reg_override_center_z_eosm_frtp        :
-    (crop_preset == CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp) ? reg_override_center_z_eosm_1920x1280_frtp        :
+    (crop_preset == CROP_PRESET_CENTER_Z_EOSM_1920x1276_frtp) ? reg_override_center_z_eosm_1920x1276_frtp        :
     (crop_preset == CROP_PRESET_CENTER_Z_EOSM_hdmi) ? reg_override_center_z_eosm_hdmi        :
     (crop_preset == CROP_PRESET_2K_EOSM)         ? reg_override_2K_eosm         :
     (crop_preset == CROP_PRESET_3K_EOSM)         ? reg_override_3K_eosm         :
@@ -6172,7 +6179,7 @@ static int crop_rec_needs_lv_refresh()
     /* let´s automate liveview start off setting */
     if ((CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM) ||
         (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_frtp) ||
-        (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp) ||
+        (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1276_frtp) ||
         (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_hdmi) ||
         (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp) ||
         (CROP_PRESET_MENU == CROP_PRESET_2K_100D) ||
@@ -6682,7 +6689,7 @@ static unsigned int crop_rec_polling_cbr(unsigned int unused)
                     CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp ||
                     CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM ||
                     CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_frtp ||
-                    CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp ||
+                    CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1276_frtp ||
                     CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_hdmi ||
                     CROP_PRESET_MENU == CROP_PRESET_2K_EOSM ||
                     CROP_PRESET_MENU == CROP_PRESET_3K_EOSM ||
@@ -6745,7 +6752,7 @@ static unsigned int crop_rec_polling_cbr(unsigned int unused)
                     CROP_PRESET_MENU == CROP_PRESET_28K_EOSM ||
                     CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM ||
                     CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_frtp ||
-                    CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp ||
+                    CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1276_frtp ||
                     CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_hdmi ||
                     CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp ||
                     CROP_PRESET_MENU == CROP_PRESET_4K_EOSM)
@@ -6898,7 +6905,7 @@ static unsigned int crop_rec_polling_cbr(unsigned int unused)
     
     if (((CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM) ||
          (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_frtp) ||
-         (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp) ||
+         (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1276_frtp) ||
          (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_hdmi) ||
          (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp) ||
          (CROP_PRESET_MENU == CROP_PRESET_2K_100D) ||
@@ -7112,9 +7119,9 @@ static LVINFO_UPDATE_FUNC(crop_info)
         snprintf(buffer, sizeof(buffer), "2.5K centered");
     }
     
-    if (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp)
+    if (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1276_frtp)
     {
-        snprintf(buffer, sizeof(buffer), "1920x1280 1:1");
+        snprintf(buffer, sizeof(buffer), "1920x1276 1:1");
     }
         
     if (CROP_PRESET_MENU == CROP_PRESET_3K_EOSM)
