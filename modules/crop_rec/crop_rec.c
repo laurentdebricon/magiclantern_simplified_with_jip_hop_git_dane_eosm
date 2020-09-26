@@ -4925,7 +4925,7 @@ static struct menu_entry crop_rec_menu[] =
                 .help2  ="passthrough\n"
                 "14bit: lossless full HD. Push SET for x3crop mode.\n"
                 "5k anamorphic 1x3 pixel binning. Push SET for x3crop mode.\n"
-                "5k anamorphic full realtime preview. Only 24fps.\n"
+                "5k anamorphic full realtime preview. 16:9 only 24fps.\n"
                 "2.5k 1:1 crop.\n"
                 "2.8k 1:1 crop. Only 2.39:1, 2.35:1.\n"
                 "full HD high speed frame rate. Push SET for x3crop mode.\n"
