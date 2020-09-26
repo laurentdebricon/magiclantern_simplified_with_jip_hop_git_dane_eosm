@@ -4497,7 +4497,6 @@ if (ratios == 3)
         case 0xC0F06008: return 0x1ff01ff + reg_6008 + (reg_6008 << 16);
         case 0xC0F06010: return 0x1ff + reg_6008;
         case 0xC0F0713c: return 0x88c + reg_713c;
-        case 0xC0F07150: return 0x80c + reg_7150;
     }
 }
     
