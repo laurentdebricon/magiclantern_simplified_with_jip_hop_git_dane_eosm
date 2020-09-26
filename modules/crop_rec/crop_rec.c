@@ -4449,48 +4449,60 @@ if (ratios == 1 || ratios == 2)
     if (!get_halfshutter_pressed())
     {
         EngDrvOutLV(0xC0F04210, 0x12E05A0);
-        EngDrvOutLV(0xc0f11B9C, 0x72C059F);
-        EngDrvOutLV(0xc0f1A00C, 0x72C059F);
-        EngDrvOutLV(0xc0f118DC, 0x72C059F);
-        EngDrvOutLV(0xc0f118E4, 0x72C059F);
-        EngDrvOutLV(0xc0f11B8C, 0x8500BA);
-        EngDrvOutLV(0xc0f11B90, 0x40333); /* Decrease Preview Moire*/
-        EngDrvOutLV(0xc0f11BCC, 0x850160);
-        EngDrvOutLV(0xc0f11BC8, 0x0);
         EngDrvOutLV(0xc0f11ACC, 0x8E0143);
-        EngDrvOutLV(0xC0F3B0DC, 0x72C05EF);
-        EngDrvOutLV(0xC0F3B074, 0x72C05F7);
-        EngDrvOutLV(0xC0F3B070, 0x73205F7);
-        EngDrvOutLV(0xC0F3B054, 0x73205A7);
-        EngDrvOutLV(0xC0F3A0B0, 0x73605A8);
-        EngDrvOutLV(0xC0F3A0A0, 0x73605AB);
-        EngDrvOutLV(0xC0F3A04C, 0x732016D);
-        EngDrvOutLV(0xC0F389EC, 0x16E0001);
-        EngDrvOutLV(0xC0F389E4, 0x733016F);
-        EngDrvOutLV(0xC0F389D4, 0x732016D);
-        EngDrvOutLV(0xC0F389B4, 0x733016E);
-        EngDrvOutLV(0xC0F389A4, 0x732016D);
-        EngDrvOutLV(0xC0F38960, 0x7320000);
-        EngDrvOutLV(0xC0F38934, 0x732016D);
-        EngDrvOutLV(0xC0F380A4, 0x16F0000);
-        EngDrvOutLV(0xC0F380A0, 0x16F0000);
-        EngDrvOutLV(0xC0F38094, 0x7360000);
-        EngDrvOutLV(0xC0F38084, 0x16F0000);
-        EngDrvOutLV(0xC0F38080, 0x7330002);
-        EngDrvOutLV(0xC0F3807C, 0x16D0000);
-        EngDrvOutLV(0xC0F38078, 0x16E0001);
-        EngDrvOutLV(0xC0F38070, 0x735016D);
-        EngDrvOutLV(0xC0F383D4, 0x1b000c);
-        EngDrvOutLV(0xC0F383DC, 0x743017a);
-        EngDrvOutLV(0xC0F38024, 0x7420179);
-        EngDrvOutLV(0xC0F42194, 0x16D);
-        EngDrvOutLV(0xC0F4204C, 0x735016D);
-        EngDrvOutLV(0xC0F42014, 0x735016D);
+        
+                EngDrvOutLV(0xc0f11B9C, 0x72C059F);
+                EngDrvOutLV(0xc0f1A00C, 0x72C059F);
+                EngDrvOutLV(0xc0f118DC, 0x72C059F);
+                EngDrvOutLV(0xc0f118E4, 0x72C059F);
+        
+                EngDrvOutLV(0xc0f11B8C, 0x8500BA);
+                EngDrvOutLV(0xc0f11B90, 0x40333);
+                EngDrvOutLV(0xc0f11BCC, 0x850160);
+                EngDrvOutLV(0xc0f11BC8, 0x0);
+                
+                EngDrvOutLV(0xc0f11A88, 0x0);
+                EngDrvOutLV(0xc0f11A8C, 0x1E002B);
+                EngDrvOutLV(0xc0f11A90, 0x40222);
+        
+                EngDrvOutLV(0xC0F3B0DC, 0x72C05EF);
+                EngDrvOutLV(0xC0F3B074, 0x72C05F7);
+                EngDrvOutLV(0xC0F3B070, 0x73205F7);
+                EngDrvOutLV(0xC0F3B054, 0x73205A7);
+                EngDrvOutLV(0xC0F3A0B0, 0x73605A8);
+                EngDrvOutLV(0xC0F3A0A0, 0x73605AB);
+                EngDrvOutLV(0xC0F3A04C, 0x732016D);
+                EngDrvOutLV(0xC0F389EC, 0x16E0001);
+                EngDrvOutLV(0xC0F389E4, 0x733016F);
+                EngDrvOutLV(0xC0F389D4, 0x732016D);
+                EngDrvOutLV(0xC0F389B4, 0x733016E);
+                EngDrvOutLV(0xC0F389A4, 0x732016D);
+                EngDrvOutLV(0xC0F38960, 0x7320000);
+                EngDrvOutLV(0xC0F38934, 0x732016D);
+                EngDrvOutLV(0xC0F380A4, 0x16F0000);
+                EngDrvOutLV(0xC0F380A0, 0x16F0000);
+                EngDrvOutLV(0xC0F38094, 0x7360000);
+                EngDrvOutLV(0xC0F38084, 0x16F0000);
+                EngDrvOutLV(0xC0F38080, 0x7330002);
+                EngDrvOutLV(0xC0F3807C, 0x16D0000);
+                EngDrvOutLV(0xC0F38078, 0x16E0001);
+                EngDrvOutLV(0xC0F38070, 0x735016D);
+               
+                EngDrvOutLV(0xC0F383D4, 0x1b000c);
+                EngDrvOutLV(0xC0F383DC, 0x743017a);
+                EngDrvOutLV(0xC0F38024, 0x7420179);
+        
+                EngDrvOutLV(0xC0F42194, 0x16D);
+                EngDrvOutLV(0xC0F4204C, 0x735016D);
+                EngDrvOutLV(0xC0F42014, 0x735016D);
     }
         
         //zoom function while recording. Regs from theBilalFakhouri
         if ((get_halfshutter_pressed() && !zoomaid) || (get_halfshutter_pressed() && RECORDING))
         {
+            EngDrvOutLV(0xC0F04210, 0x12E05A0);
+            EngDrvOutLV(0xc0f11ACC, 0x8E0143);
+            
                 EngDrvOutLV(0xc0f11B9C, 0x2AF0407);
                 EngDrvOutLV(0xc0f1A00C, 0x2AF0407);
                 EngDrvOutLV(0xc0f118DC, 0x2AF0407);
