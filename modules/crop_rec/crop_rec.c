@@ -1493,6 +1493,11 @@ static void FAST cmos_hook(uint32_t* regs, uint32_t* stack, uint32_t pc)
                 cmos_new[5] = 0x160;             /* vertical (first|last) */
                 cmos_new[7] = 0xB06;            /* horizontal offset (mask 0xFF0) */
             }
+                if (lv_dispsize == 10)
+                {
+                cmos_new[5] = 0x380;             /* vertical (first|last) */
+                cmos_new[7] = 0xACA;
+                }
             break;
                 
             case CROP_PRESET_CENTER_Z_EOSM_1920x1276_frtp:
@@ -2360,6 +2365,8 @@ static void FAST adtg_hook(uint32_t* regs, uint32_t* stack, uint32_t pc)
                 
             case CROP_PRESET_Anamorphic_EOSM_frtp:
                 adtg_new[17] = (struct adtg_new) {2, 0x8000, 0x6};
+            //x10zoom possible with SET button
+            if (lv_dispsize == 10) adtg_new[17] = (struct adtg_new) {2, 0x8000, 0x5};
                 adtg_new[18] = (struct adtg_new) {2, 0x8183, 0x21};
                 adtg_new[19] = (struct adtg_new) {2, 0x8184, 0x7B};
                 break;
@@ -4402,6 +4409,8 @@ static inline uint32_t reg_override_anamorphic_rewired_flv_eosm(uint32_t reg, ui
 
 static inline uint32_t reg_override_anamorphic_eosm_frtp(uint32_t reg, uint32_t old_val)
 {
+    //x10zoom possible with SET button
+    if (lv_dispsize == 10) return 0;
     
     if (ratios == 3)
     {
@@ -4446,7 +4455,7 @@ static inline uint32_t reg_override_anamorphic_eosm_frtp(uint32_t reg, uint32_t 
     
 if (ratios == 1 || ratios == 2)
 {
-    if (!get_halfshutter_pressed())
+    if ((!get_halfshutter_pressed() && RECORDING) || (!RECORDING))
     {
         EngDrvOutLV(0xC0F04210, 0x12E05A0);
         EngDrvOutLV(0xc0f11ACC, 0x8E0143);
@@ -4455,16 +4464,13 @@ if (ratios == 1 || ratios == 2)
                 EngDrvOutLV(0xc0f1A00C, 0x72C059F);
                 EngDrvOutLV(0xc0f118DC, 0x72C059F);
                 EngDrvOutLV(0xc0f118E4, 0x72C059F);
-        
                 EngDrvOutLV(0xc0f11B8C, 0x8500BA);
                 EngDrvOutLV(0xc0f11B90, 0x40333);
                 EngDrvOutLV(0xc0f11BCC, 0x850160);
                 EngDrvOutLV(0xc0f11BC8, 0x0);
-                
                 EngDrvOutLV(0xc0f11A88, 0x0);
                 EngDrvOutLV(0xc0f11A8C, 0x1E002B);
                 EngDrvOutLV(0xc0f11A90, 0x40222);
-        
                 EngDrvOutLV(0xC0F3B0DC, 0x72C05EF);
                 EngDrvOutLV(0xC0F3B074, 0x72C05F7);
                 EngDrvOutLV(0xC0F3B070, 0x73205F7);
@@ -4487,18 +4493,16 @@ if (ratios == 1 || ratios == 2)
                 EngDrvOutLV(0xC0F3807C, 0x16D0000);
                 EngDrvOutLV(0xC0F38078, 0x16E0001);
                 EngDrvOutLV(0xC0F38070, 0x735016D);
-               
                 EngDrvOutLV(0xC0F383D4, 0x1b000c);
                 EngDrvOutLV(0xC0F383DC, 0x743017a);
                 EngDrvOutLV(0xC0F38024, 0x7420179);
-        
                 EngDrvOutLV(0xC0F42194, 0x16D);
                 EngDrvOutLV(0xC0F4204C, 0x735016D);
                 EngDrvOutLV(0xC0F42014, 0x735016D);
     }
         
         //zoom function while recording. Regs from theBilalFakhouri
-        if ((get_halfshutter_pressed() && !zoomaid) || (get_halfshutter_pressed() && RECORDING))
+        if (get_halfshutter_pressed() && RECORDING)
         {
             EngDrvOutLV(0xC0F04210, 0x12E05A0);
             EngDrvOutLV(0xc0f11ACC, 0x8E0143);
@@ -4637,6 +4641,9 @@ if (!ratios)
 
 static inline uint32_t reg_override_center_z_eosm_1920x1276_frtp(uint32_t reg, uint32_t old_val)
 {
+    //x10zoom possible with SET button
+    if (lv_dispsize == 10) return 0;
+    
              EngDrvOutLV(0xC0F09050, 0x3002D0);     /* Making LiveView somoother */
              EngDrvOutLV(0xc0f11B9C, 0x500077F);
              EngDrvOutLV(0xc0f1A00C, 0x500077F);
@@ -5802,10 +5809,10 @@ static unsigned int crop_rec_keypress_cbr(unsigned int key)
         
         return 0;
     }
-    
+        
     //x10crop with SET push while in x5 modes
     if (is_EOSM && lv && !gui_menu_shown() && !RECORDING && is_movie_mode() && !anacrop3 &&
-        key == MODULE_KEY_PRESS_SET && (CROP_PRESET_MENU == CROP_PRESET_2K_EOSM || CROP_PRESET_MENU == CROP_PRESET_3K_EOSM || CROP_PRESET_MENU == CROP_PRESET_28K_EOSM || CROP_PRESET_MENU == CROP_PRESET_4K_EOSM))
+        key == MODULE_KEY_PRESS_SET && (CROP_PRESET_MENU == CROP_PRESET_2K_EOSM || CROP_PRESET_MENU == CROP_PRESET_3K_EOSM || CROP_PRESET_MENU == CROP_PRESET_28K_EOSM || CROP_PRESET_MENU == CROP_PRESET_4K_EOSM || CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_frtp || CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1276_frtp || CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp))
     {
         if (iso_climb == 0x1 && lens_info.raw_iso != 0x48) menu_set_str_value_from_script("Expo", "ISO", "100", 1);
         if (iso_climb == 0x2 && lens_info.raw_iso != 0x50) menu_set_str_value_from_script("Expo", "ISO", "200", 1);
@@ -5818,7 +5825,7 @@ static unsigned int crop_rec_keypress_cbr(unsigned int key)
         key = MODULE_KEY_UNPRESS_SET;
     }
     if (is_EOSM && lv && !gui_menu_shown() && !RECORDING && is_movie_mode() && lv_dispsize == 10 &&
-        key == MODULE_KEY_PRESS_SET && (CROP_PRESET_MENU == CROP_PRESET_2K_EOSM || CROP_PRESET_MENU == CROP_PRESET_3K_EOSM || CROP_PRESET_MENU == CROP_PRESET_28K_EOSM || CROP_PRESET_MENU == CROP_PRESET_4K_EOSM))
+        key == MODULE_KEY_PRESS_SET && (CROP_PRESET_MENU == CROP_PRESET_2K_EOSM || CROP_PRESET_MENU == CROP_PRESET_3K_EOSM || CROP_PRESET_MENU == CROP_PRESET_28K_EOSM || CROP_PRESET_MENU == CROP_PRESET_4K_EOSM || CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_frtp || CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1276_frtp || CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp))
     {
         set_lv_zoom(5);
         key = MODULE_KEY_UNPRESS_SET;
