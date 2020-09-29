@@ -469,14 +469,9 @@ static int pres3 = 0;
 static int pres4 = 0;
 static int pres5 = 0;
 static int pres6 = 0;
-static int pre1 = 0;
-static int pre2 = 0;
-static int pre3 = 0;
-static int prea = 0;
-static int preb = 0;
 static int anacrop = 0;
 static int anacrop2 = 0;
-static int anacrop3 = 0;
+static int anacrop4 = 0;
 
 
 /* helper to allow indexing various properties of Canon's video modes */
@@ -2462,8 +2457,6 @@ static inline uint32_t reg_override_bits(uint32_t reg, uint32_t old_val)
         /* x10crop preview hack */
         if (get_ms_clock() - last_hs_unpress > 100 && get_halfshutter_pressed() && !crop_patch2)
         {
-            //turn off SET button x10 zoom
-            anacrop3 = 0;
             /* checking passed 1500ms for when in canon menu. get_ms_clock() seems to be counting with no reset while in canon menu */
             if (get_ms_clock() - last_hs_unpress < 1500) crop_preset = CROP_PRESET_x10_EOSM;
         }
@@ -5588,155 +5581,7 @@ static unsigned int crop_rec_keypress_cbr(unsigned int key)
         set_lv_zoom(1);
         return 0;
     }
-    
-    /* presets shortcuts */
-    if (!RECORDING && key == MODULE_KEY_TOUCH_1_FINGER && lv_dispsize == 10 && !anacrop3 && is_movie_mode() && !gui_menu_shown() && lv)
-    {
-        /* always turned off when running from this function */
-        framestop = 0;
-        isoaverage = 0;
-        prea = 0;
-        preb = 0;
-        /* reset to mcm rewired or jump straight to... */
-        if (!pre1 || (pre3 && !pre2 && !pre1))
-        {
-            pre1 = 1;
-            pre3 = 0;
-            NotifyBox(1000, "HD 1080p 2.39:1 14bit");
-            bitdepth = 0x0;
-            ratios = 1;
-            presets = 0x0;
-            menu_set_str_value_from_script("Movie", "raw video", "ON", 1);
-            msleep(100);
-            if (!zoomaid)
-            {
-                PauseLiveView();
-                ResumeLiveView();
-            }
-            crop_preset_index = 0;
-            return 0;
-        }
         
-        if (!pre2 && pre1)
-        {
-            pre2 = 1;
-            NotifyBox(1000, "5k anamorphic 2.39:1 10bit");
-            bitdepth = 0x1;
-            ratios = 1;
-            presets = 0x0;
-            menu_set_str_value_from_script("Movie", "raw video", "ON", 1);
-            msleep(100);
-            if (!zoomaid)
-            {
-                PauseLiveView();
-                ResumeLiveView();
-            }
-            crop_preset_index = 6;
-            return 0;
-        }
-        
-        if (!pre3 && pre2 && pre1)
-        {
-            pre3 = 1;
-            pre2 = 0;
-            pre1 = 0;
-            NotifyBox(1000, "2.5k 1:1 2.39:1 10bit");
-            bitdepth = 0x1;
-            ratios = 1;
-            presets = 0x0;
-            menu_set_str_value_from_script("Movie", "raw video", "ON", 1);
-            msleep(100);
-            if (!zoomaid)
-            {
-                PauseLiveView();
-                ResumeLiveView();
-            }
-            crop_preset_index = 3;
-            return 0;
-        }
-    }
-    
-    //move down indexing here after selecting one or registry will mess up liveview while scrolling with focus aid sticky push feature
-    /*
-     while (((get_halfshutter_pressed() && zoomaid == 0x3) || (!get_halfshutter_pressed() && (zoomaid == 0x1 || zoomaid == 0x2))) && (pre1 || pre2 || pre3) && lv_dispsize == 10 && !gui_menu_shown())
-     {
-     if (pre1 && !pre2 && !pre3) crop_preset_index = 0;
-     if (pre2 && pre1 && !pre3) crop_preset_index = 6;
-     if (pre3 && !pre1 && !pre2) crop_preset_index = 3;
-     if (crop_preset_index == 0) set_lv_zoom(1);
-     if (crop_preset_index == 6) set_lv_zoom(1);
-     if (crop_preset_index == 3) set_lv_zoom(5);
-     pre3 = 0;
-     pre2 = 0;
-     pre1 = 0;
-     }
-     */
-    
-    /* presets shortcuts */
-    if (!RECORDING && key == MODULE_KEY_PRESS_SET && lv_dispsize == 10 && !anacrop3 && is_movie_mode() && !gui_menu_shown() && lv)
-    {
-        if ((!prea && !preb && crop_preset_index != 6) || ratios != 0)
-        {
-            NotifyBox(1000, "anamorphic flv");
-            msleep(500);
-            bitdepth = 0x0;
-            ratios = 0;
-            presets = 0x0;
-            menu_set_str_value_from_script("Movie", "raw video", "ON", 1);
-            msleep(100);
-            if (!zoomaid)
-            {
-            PauseLiveView();
-            ResumeLiveView();
-            }
-            crop_preset_index = 6;
-        }
-        
-        if (prea && preb)
-        {
-            prea = 0;
-            preb = 0;
-            NotifyBox(1000, "turning off framestop");
-            framestop = 0;
-            isoaverage = 0;
-            msleep(100);
-            if (!zoomaid)
-            {
-                PauseLiveView();
-                ResumeLiveView();
-            }
-            return 0;
-        }
-        if (!prea && !preb)
-        {
-            prea = 1;
-            NotifyBox(1000, "framestop set to iso 100/1600");
-            framestop = 1;
-            isoaverage = 1;
-            msleep(100);
-            if (!zoomaid)
-            {
-                PauseLiveView();
-                ResumeLiveView();
-            }
-            return 0;
-        }
-        if (prea && !preb)
-        {
-            preb = 1;
-            NotifyBox(1000, "framestop set to iso 100/400/1600");
-            framestop = 2;
-            isoaverage = 1;
-            msleep(100);
-            if (!zoomaid)
-            {
-                PauseLiveView();
-                ResumeLiveView();
-            }
-            return 0;
-        }
-    }
-    
     if ((gain_buttons && !RECORDING && is_movie_mode()) && (key == MODULE_KEY_INFO || (!lv && (key == MODULE_KEY_TOUCH_1_FINGER || key == MODULE_KEY_PRESS_SET)) || gui_menu_shown()))
     {
         gain = 1;
@@ -5770,11 +5615,11 @@ static unsigned int crop_rec_keypress_cbr(unsigned int key)
     }
     
     /* x3crop toggle by using short press on thrash can button instead of halfshutter */
-    if (is_EOSM && lv && !gui_menu_shown() && !RECORDING && is_movie_mode() &&
+    if (is_EOSM && lv_dispsize != 10 && lv && !gui_menu_shown() && !RECORDING && is_movie_mode() &&
         ((key == MODULE_KEY_PRESS_DOWN && x3toggle == 0x1) || (key == MODULE_KEY_PRESS_SET && x3toggle == 0x2)) &&
         (CROP_PRESET_MENU == CROP_PRESET_3x3_mv1080_EOSM || CROP_PRESET_MENU == CROP_PRESET_mcm_mv1080_EOSM ||
          CROP_PRESET_MENU == CROP_PRESET_3x3_mv1080_48fps_EOSM || CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_EOSM ||
-         CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_flv_EOSM))
+         CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_flv_EOSM || CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp))
     {
         if (x3crop == 0x1)
         {
@@ -5782,24 +5627,31 @@ static unsigned int crop_rec_keypress_cbr(unsigned int key)
             if (anacrop)
             {
                 crop_preset_index = 6;
-                CROP_PRESET_MENU =  CROP_PRESET_anamorphic_rewired_EOSM;
+                CROP_PRESET_MENU = CROP_PRESET_anamorphic_rewired_EOSM;
                 anacrop = 0;
             }
             if (anacrop2)
             {
                 crop_preset_index = 7;
-                CROP_PRESET_MENU =  CROP_PRESET_anamorphic_rewired_flv_EOSM;
+                CROP_PRESET_MENU = CROP_PRESET_anamorphic_rewired_flv_EOSM;
                 anacrop2 = 0;
+            }
+            if (anacrop4)
+            {
+                crop_preset_index = 12;
+                CROP_PRESET_MENU = CROP_PRESET_Anamorphic_EOSM_frtp;
+                anacrop4 = 0;
             }
         }
         else
         {
             x3crop = 0x1;
             //allow for x3crop when using anamorphic mode
-            if (CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_EOSM || CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_flv_EOSM)
+            if (CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_EOSM || CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_flv_EOSM || CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp)
             {
                 if (CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_EOSM) anacrop = 1;
                 if (CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_flv_EOSM) anacrop2 = 1;
+                if (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp) anacrop4 = 4;
                 crop_preset_index = 0;
                 CROP_PRESET_MENU = CROP_PRESET_mcm_mv1080_EOSM;
             }
@@ -5811,8 +5663,8 @@ static unsigned int crop_rec_keypress_cbr(unsigned int key)
     }
         
     //x10crop with SET push while in x5 modes
-    if (is_EOSM && lv && !gui_menu_shown() && !RECORDING && is_movie_mode() && !anacrop3 &&
-        key == MODULE_KEY_PRESS_SET && (CROP_PRESET_MENU == CROP_PRESET_2K_EOSM || CROP_PRESET_MENU == CROP_PRESET_3K_EOSM || CROP_PRESET_MENU == CROP_PRESET_28K_EOSM || CROP_PRESET_MENU == CROP_PRESET_4K_EOSM || CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_frtp || CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1276_frtp || CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp))
+    if (is_EOSM && lv && !gui_menu_shown() && !RECORDING && is_movie_mode() &&
+        key == MODULE_KEY_PRESS_SET && (CROP_PRESET_MENU == CROP_PRESET_2K_EOSM || CROP_PRESET_MENU == CROP_PRESET_3K_EOSM || CROP_PRESET_MENU == CROP_PRESET_28K_EOSM || CROP_PRESET_MENU == CROP_PRESET_4K_EOSM || CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_frtp || CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1276_frtp))
     {
         if (iso_climb == 0x1 && lens_info.raw_iso != 0x48) menu_set_str_value_from_script("Expo", "ISO", "100", 1);
         if (iso_climb == 0x2 && lens_info.raw_iso != 0x50) menu_set_str_value_from_script("Expo", "ISO", "200", 1);
@@ -5820,7 +5672,6 @@ static unsigned int crop_rec_keypress_cbr(unsigned int key)
         if (iso_climb == 0x4 && lens_info.raw_iso != 0x60) menu_set_str_value_from_script("Expo", "ISO", "800", 1);
         if (iso_climb == 0x5 && lens_info.raw_iso != 0x68) menu_set_str_value_from_script("Expo", "ISO", "1600", 1);
         if (iso_climb == 0x6 && lens_info.raw_iso != 0x70) menu_set_str_value_from_script("Expo", "ISO", "3200", 1);
-        anacrop3 = 1;
         set_lv_zoom(10);
         key = MODULE_KEY_UNPRESS_SET;
     }
@@ -5830,7 +5681,7 @@ static unsigned int crop_rec_keypress_cbr(unsigned int key)
         set_lv_zoom(5);
         key = MODULE_KEY_UNPRESS_SET;
     }
-    
+        
     /* h264 */
     if (key == MODULE_KEY_PRESS_SET && lv && !gui_menu_shown() && !RECORDING && is_movie_mode() && CROP_PRESET_MENU == CROP_PRESET_H264)
     {
@@ -6085,7 +5936,7 @@ static int crop_rec_needs_lv_refresh()
             menu_set_str_value_from_script("raw video", "Crop rec preview", "OFF", 1);
             menu_set_str_value_from_script("raw video", "Preview", "Real-time", 1);
             msleep(200);
-            set_lv_zoom(1);
+            set_lv_zoom(5);
             PauseLiveView();
             msleep(100);
             ResumeLiveView();
@@ -6206,11 +6057,6 @@ static int crop_rec_needs_lv_refresh()
             isoaverage = 0;
             HDR_iso_a = 0;
             HDR_iso_b = 0;
-            pre1 = 0;
-            pre2 = 0;
-            pre3 = 0;
-            prea = 0;
-            preb = 0;
             gremag = 1;
             gui_stop_menu(); // Close ML menu before applying to make sure all is set properly
             msleep(100);
@@ -6996,12 +6842,11 @@ static unsigned int crop_rec_polling_cbr(unsigned int unused)
         gui_uilock(UILOCK_NONE);
         info_led_off();
         set_lv_zoom(5);
-        if (CROP_PRESET_MENU == CROP_PRESET_2K_EOSM && !anacrop3)
+        if (CROP_PRESET_MENU == CROP_PRESET_2K_EOSM)
         {
             PauseLiveView();
             ResumeLiveView();
         }
-        anacrop3 = 0;
     }
     return CBR_RET_CONTINUE;
 }
