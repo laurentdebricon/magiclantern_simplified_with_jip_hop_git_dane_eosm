@@ -2424,7 +2424,21 @@ static int raw_rec_should_preview(void)
         }
         if (get_ms_clock() - last_hs_unpress > 500)
         {
+<<<<<<< HEAD
             long_halfshutter_press = 1;
+=======
+     	    long_halfshutter_press = 1;
+/* when using x10toggle mode in crop_rec.c will disable framing preview temporarily*/
+            if (shamem_read(0xc0f11a88) == 0x1) long_halfshutter_press = 0;
+            //Will keep from framing while running anamorphic frtp mode
+            if ((raw_active_height > 1300 || raw_active_width > 1800) && preview_mode == 1) long_halfshutter_press = 0;
+/* let´s disable framing in realtime preview while using mcm rewired mode with eosm */
+            if (shamem_read(0xc0f383d4) == 0x4f0010 && cam_eos_m) long_halfshutter_press = 0;
+/* 48fps mode in crop_rec.c. Affects 2.39:1 and 2.35:1 */
+            if (shamem_read(0xc0f06804) == 0x2f701d4 && cam_eos_m) long_halfshutter_press = 0;
+/* when touching display while in x10 zoomaid mode */
+            if (shamem_read(0xc0f06804) == 0x4a601d4 && cam_eos_m) long_halfshutter_press = 0;
+>>>>>>> 7a6f35c96 (crop_rec.c,mlv_lite.c:(EOSM anamorphic frtp mode with hdmi support. Fix for halfshutter while running real time preview and cropmarks kept))
         }
     }
 
