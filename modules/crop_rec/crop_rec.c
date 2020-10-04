@@ -2462,11 +2462,12 @@ static inline uint32_t reg_override_bits(uint32_t reg, uint32_t old_val)
         }
     }
     
-    /* reset registry. Used for dummy check in mlv_lite.c when using realtime preview */
+    // reset registry. Used for dummy check in mlv_lite.c when using realtime preview
     if (!get_halfshutter_pressed() && zoomaid && !RECORDING && CROP_PRESET_MENU != CROP_PRESET_anamorphic_rewired_EOSM && CROP_PRESET_MENU != CROP_PRESET_anamorphic_rewired_flv_EOSM && CROP_PRESET_MENU != CROP_PRESET_Anamorphic_EOSM_frtp)
     {
         EngDrvOutLV(0xc0f11a88, 0x0);
     }
+    
     
     /* only apply bit reducing while recording, not while idle */
     if ((RECORDING && (is_EOSM || is_100D || is_5D3)) || (!is_EOSM && !is_100D && !is_5D3))
@@ -2502,8 +2503,10 @@ static inline uint32_t reg_override_bits(uint32_t reg, uint32_t old_val)
     }
         
     
+    /* Causing overhead and corruption with hdmi when tested with frtp preset
     if (CROP_PRESET_MENU != CROP_PRESET_3x3_mv1080_48fps_EOSM && CROP_PRESET_MENU != CROP_PRESET_anamorphic_rewired_EOSM && CROP_PRESET_MENU != CROP_PRESET_anamorphic_rewired_flv_EOSM && RECORDING && bitdepth != 0x0 && (is_EOSM || is_100D))
     {
+        
         // correcting black level a bit. Compensating greenish tint. Only affects preview, not recordings
         if (lens_info.raw_iso != 0x48 && lens_info.raw_iso_auto > 0x4e) // iso 100 excluded, breaks
         {
@@ -2512,8 +2515,9 @@ static inline uint32_t reg_override_bits(uint32_t reg, uint32_t old_val)
             EngDrvOutLV(0xc0f37b04, 0x73ca + reg_bl);
             EngDrvOutLV(0xc0f37ae0, 0x73ca + reg_bl);
         }
+       
     }
-    
+     */
     
     if (is_EOSM && !RECORDING)
     {
