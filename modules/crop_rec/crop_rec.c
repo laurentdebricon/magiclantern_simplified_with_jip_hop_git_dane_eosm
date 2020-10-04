@@ -5807,6 +5807,8 @@ static unsigned int crop_rec_keypress_cbr(unsigned int key)
                 CROP_PRESET_MENU = CROP_PRESET_Anamorphic_EOSM_frtp;
                 anacrop4 = 0;
             }
+            PauseLiveView();
+            ResumeLiveView();
         }
         else
         {
@@ -5824,7 +5826,7 @@ static unsigned int crop_rec_keypress_cbr(unsigned int key)
         PauseLiveView();
         ResumeLiveView();
         
-        return 0;
+        return 1;
     }
         
     //x10crop with SET push while in x5 modes
@@ -6093,10 +6095,10 @@ static int crop_rec_needs_lv_refresh()
         
         if (presets == 0x3)
         {
-            NotifyBox(2000, "5k anamorphic frtp 10bit");
+            NotifyBox(2000, "5k anamorphic frtp 14bit");
             crop_preset_index = 12;
             presets = 0;
-            bitdepth = 0x1;
+            bitdepth = 0x0;
             menu_set_str_value_from_script("Movie", "raw video", "ON", 1);
             menu_set_str_value_from_script("raw video", "Crop rec preview", "OFF", 1);
             menu_set_str_value_from_script("raw video", "Preview", "Real-time", 1);
