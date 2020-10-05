@@ -3959,10 +3959,25 @@ static inline uint32_t reg_override_3x3_mv1080_eosm(uint32_t reg, uint32_t old_v
 
 static inline uint32_t reg_override_mcm_mv1080_eosm(uint32_t reg, uint32_t old_val)
 {
+    //zoom function while recording
+    if (get_halfshutter_pressed())
+    {
+        EngDrvOutLV(0xc0f383d4, 0x4f001e);
+        EngDrvOutLV(0xc0f383dc, 0x42401de);
+        EngDrvOutLV(0xc0f11ACC, 0x790079);
+        EngDrvOutLV(0xc0f11A88, 0x1);
+        EngDrvOutLV(0xc0f11A8C, 0x24003a);
+    }
+    else
+    {
+        /* gets rid of the black border to the right */
+        EngDrvOutLV(0xc0f383d4, 0x4f0010);
+        EngDrvOutLV(0xc0f383dc, 0x42401c6);
+        EngDrvOutLV(0xc0f11ACC, 0x650079);
+        EngDrvOutLV(0xc0f11A88, 0x0);
+        EngDrvOutLV(0xc0f11A8C, 0x24002b);
+    }
     
-    /* gets rid of the black border to the right */
-    EngDrvOutLV(0xc0f383d4, 0x4f0010 + reg_83d4);
-    EngDrvOutLV(0xc0f383dc, 0x42401c6 + reg_83dc);
     
     if (ratios == 0x0 && x3crop == 0x0)
     {
@@ -4075,6 +4090,20 @@ static inline uint32_t reg_override_3x3_48fps_eosm(uint32_t reg, uint32_t old_va
     /* helps when selecting a new preset */
     if (gui_menu_shown() && !RECORDING) *(volatile uint32_t*)0xC0F06014 = 0x643;
     
+    //zoom function while recording
+    if (get_halfshutter_pressed())
+    {
+        EngDrvOutLV(0xc0f11ACC, 0x40004);
+        EngDrvOutLV(0xc0f11A88, 0x1);
+        EngDrvOutLV(0xc0f11A8C, 0x30005);
+    }
+    else
+    {
+        EngDrvOutLV(0xc0f11ACC, 0x30004 + reg_6804_width + (reg_6804_height << 16));
+        EngDrvOutLV(0xc0f11A88, 0x0);
+        EngDrvOutLV(0xc0f11A8C, 0x30004 + reg_6800_width + (reg_6800_height << 16));
+    }
+    
     /* compensates for black level issues with analog gain. Used for both 10 and 12 bit */
    // if (bitdepth && RECORDING) *(volatile uint32_t*)0xC0F08560 = 0x7f6;
     if (!is_720p() && !is_EOSM)
@@ -4087,7 +4116,7 @@ static inline uint32_t reg_override_3x3_48fps_eosm(uint32_t reg, uint32_t old_va
     {
         switch (reg)
         {
-            case 0xC0F06804: return 0x4a701d4 + reg_6804_width + (reg_6804_height << 16);
+            case 0xC0F06804: return 0x4a701d4;
             case 0xC0F0713c: return 0x4a7 + reg_713c;
             case 0xC0F07150: return 0x4a0 + reg_7150;
                 
