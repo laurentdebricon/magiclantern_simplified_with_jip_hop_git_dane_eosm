@@ -4470,6 +4470,11 @@ static inline uint32_t reg_override_anamorphic_eosm_frtp(uint32_t reg, uint32_t 
         //zoom function while recording. Regs from theBilalFakhouri
         if (get_halfshutter_pressed() && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
         {
+                    EngDrvOutLV(0xC0F04210, 0x18A05A0);
+                    EngDrvOutLV(0xc0f11ACC, 0x4E0088);
+                    EngDrvOutLV(0xc0f11A88, 0x1);
+                    EngDrvOutLV(0xc0f11A8C, 0x1E001E);
+            
                     EngDrvOutLV(0xc0f11B9C, 0x2AF0407);
                     EngDrvOutLV(0xc0f1A00C, 0x2AF0407);
                     EngDrvOutLV(0xc0f118DC, 0x2AF0407);
@@ -4580,6 +4585,7 @@ if (ratios == 1 || ratios == 2)
         {
             EngDrvOutLV(0xC0F04210, 0x12E05A0);
             EngDrvOutLV(0xc0f11ACC, 0x8E0143);
+            EngDrvOutLV(0xc0f11A8C, 0x1E0025);
             
                 EngDrvOutLV(0xc0f11B9C, 0x2AF0407);
                 EngDrvOutLV(0xc0f1A00C, 0x2AF0407);
@@ -4590,7 +4596,6 @@ if (ratios == 1 || ratios == 2)
                 EngDrvOutLV(0xc0f11BCC, 0x0);
                 EngDrvOutLV(0xc0f11BC8, 0x0);
                 EngDrvOutLV(0xc0f11A88, 0x1);
-                EngDrvOutLV(0xc0f11A8C, 0x1E0025);
                 EngDrvOutLV(0xc0f11A90, 0x50333);
                 EngDrvOutLV(0xC0F3B0DC, 0x2AF0457);
                 EngDrvOutLV(0xC0F3B074, 0x2AF045F);
@@ -4690,10 +4695,10 @@ if (!ratios)
     //zoom function while recording. Regs from theBilalFakhouri
     if (get_halfshutter_pressed() && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
     {
-                        EngDrvOutLV(0xC0F04210, 0x15505A0);
-                        EngDrvOutLV(0xc0f11ACC, 0x8E011E);
-                        EngDrvOutLV(0xc0f11A88, 0x1);
-                        EngDrvOutLV(0xc0f11A8C, 0x1E002E);
+                EngDrvOutLV(0xC0F04210, 0x15505A0);
+                EngDrvOutLV(0xc0f11ACC, 0x8E011E);
+                EngDrvOutLV(0xc0f11A88, 0x1);
+                EngDrvOutLV(0xc0f11A8C, 0x1E002E);
                 
                 EngDrvOutLV(0xc0f11B9C, 0x2AF0407);
                 EngDrvOutLV(0xc0f1A00C, 0x2AF0407);
