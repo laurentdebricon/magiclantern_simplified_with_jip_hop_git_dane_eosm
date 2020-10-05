@@ -3967,6 +3967,11 @@ static inline uint32_t reg_override_mcm_mv1080_eosm(uint32_t reg, uint32_t old_v
         EngDrvOutLV(0xc0f11ACC, 0x790079);
         EngDrvOutLV(0xc0f11A88, 0x1);
         EngDrvOutLV(0xc0f11A8C, 0x24003a);
+        
+        
+        EngDrvOutLV(0xC0F4204C, 0x8790145);
+        EngDrvOutLV(0xC0F42014, 0x8790145);
+        EngDrvOutLV(0xC0F38070, 0x8790145);
     }
     else
     {
@@ -3976,14 +3981,18 @@ static inline uint32_t reg_override_mcm_mv1080_eosm(uint32_t reg, uint32_t old_v
         EngDrvOutLV(0xc0f11ACC, 0x650079);
         EngDrvOutLV(0xc0f11A88, 0x0);
         EngDrvOutLV(0xc0f11A8C, 0x24002b);
+        
+        
+        EngDrvOutLV(0xC0F4204C, 0x3d401b5);
+        EngDrvOutLV(0xC0F42014, 0x3d401b5);
+        EngDrvOutLV(0xC0F38070, 0x3d401b5);
     }
-    
     
     if (ratios == 0x0 && x3crop == 0x0)
     {
         switch (reg)
         {
-            case 0xC0F06804: return 0x4a601e4 + reg_6804_width + (reg_6804_height << 16);
+            case 0xC0F06804: return 0x4a601e4;
             case 0xC0F0713c: return 0x4a7 + reg_713c;
             case 0xC0F07150: return 0x430 + reg_7150;
         }
@@ -4096,12 +4105,20 @@ static inline uint32_t reg_override_3x3_48fps_eosm(uint32_t reg, uint32_t old_va
         EngDrvOutLV(0xc0f11ACC, 0x40004);
         EngDrvOutLV(0xc0f11A88, 0x1);
         EngDrvOutLV(0xc0f11A8C, 0x30005);
+        
+        EngDrvOutLV(0xC0F4204C, 0x8790145);
+        EngDrvOutLV(0xC0F42014, 0x8790145);
+        EngDrvOutLV(0xC0F38070, 0x8790145);
     }
     else
     {
-        EngDrvOutLV(0xc0f11ACC, 0x30004 + reg_6804_width + (reg_6804_height << 16));
+        EngDrvOutLV(0xc0f11ACC, 0x30004);
         EngDrvOutLV(0xc0f11A88, 0x0);
-        EngDrvOutLV(0xc0f11A8C, 0x30004 + reg_6800_width + (reg_6800_height << 16));
+        EngDrvOutLV(0xc0f11A8C, 0x30004);
+        
+        EngDrvOutLV(0xC0F4204C, 0x2ba01b5);
+        EngDrvOutLV(0xC0F42014, 0x2ba01b5);
+        EngDrvOutLV(0xC0F38070, 0x2ba01b5);
     }
     
     /* compensates for black level issues with analog gain. Used for both 10 and 12 bit */
