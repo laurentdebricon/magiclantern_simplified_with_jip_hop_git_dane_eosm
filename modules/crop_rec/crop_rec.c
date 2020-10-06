@@ -2468,18 +2468,43 @@ static inline uint32_t reg_override_bits(uint32_t reg, uint32_t old_val)
         EngDrvOutLV(0xc0f11a88, 0x0);
     }
     
-    
-    /* only apply bit reducing while recording, not while idle */
-    if ((RECORDING && (is_EOSM || is_100D || is_5D3)) || (!is_EOSM && !is_100D && !is_5D3))
+/* only apply bit reducing while recording, not while idle */
+if ((RECORDING && (is_EOSM || is_100D || is_5D3)) || (!is_EOSM && !is_100D && !is_5D3))
+{
+
+    //TODO - test with hdmi for corruption with anamorphic frtp mode
+    // bilal routines. black level
+    if (OUTPUT_10BIT || OUTPUT_12BIT)
     {
+        if (lens_info.iso_analog_raw == ISO_400)
+        {
+            EngDrvOutLV(0xC0F0819C, 0xC3b);
+        }
+        if (lens_info.iso_analog_raw == ISO_800)
+        {
+            EngDrvOutLV(0xC0F0819C, 0xC3e);
+        }
+        if (lens_info.iso_analog_raw == ISO_1600)
+        {
+            EngDrvOutLV(0xC0F0819C, 0xC43);
+        }
+        if (lens_info.iso_analog_raw == ISO_3200)
+        {
+            EngDrvOutLV(0xC0F0819C, 0xC4c);
+        }
+        if (lens_info.raw_iso == ISO_6400)
+        {
+            EngDrvOutLV(0xC0F0819C, 0xC61);
+        }
+    }
         
-        /* bilal routines. let´s pause them for now
+        //brightness
         if (OUTPUT_10BIT)
         {
-            EngDrvOutLV(0xC0F37AE4, 0x50200);
-            EngDrvOutLV(0xC0F37AF0, 0x50200);
-            EngDrvOutLV(0xC0F37AFC, 0x50200);
-            EngDrvOutLV(0xC0F37B08, 0x50200);
+            EngDrvOutLV(0xC0F37AE4, 0x40200);
+            EngDrvOutLV(0xC0F37AF0, 0x40200);
+            EngDrvOutLV(0xC0F37AFC, 0x40200);
+            EngDrvOutLV(0xC0F37B08, 0x40200);
         }
         
         if (OUTPUT_12BIT)
@@ -2489,8 +2514,8 @@ static inline uint32_t reg_override_bits(uint32_t reg, uint32_t old_val)
             EngDrvOutLV(0xC0F37AFC, 0x20200);
             EngDrvOutLV(0xC0F37B08, 0x20200);
         }
-        */
         
+        /* old routine
         if (OUTPUT_10BIT)
          {
              EngDrvOutLV(0xC0F42744, 0x4040404);
@@ -2500,7 +2525,9 @@ static inline uint32_t reg_override_bits(uint32_t reg, uint32_t old_val)
          {
              EngDrvOutLV(0xC0F42744, 0x2020202);
          }
-    }
+         */
+    
+}
         
     
     /* Causing overhead and corruption with hdmi when tested with frtp preset
@@ -4363,7 +4390,7 @@ static inline uint32_t reg_override_anamorphic_rewired_flv_eosm(uint32_t reg, ui
         EngDrvOutLV(0xc0f383d4, 0x4f0010 + reg_83d4);
         EngDrvOutLV(0xc0f383dc, 0x42401c6 + reg_83dc);
     }
-    
+        
     if (!ratios)
     {
         /* full readout */
