@@ -2497,8 +2497,9 @@ if ((RECORDING && (is_EOSM || is_100D || is_5D3)) || (!is_EOSM && !is_100D && !i
             EngDrvOutLV(0xC0F0819C, 0xC61);
         }
     }
+    
         
-        //brightness
+        /*brightness Causing random crashes, at least with 48fps. Seems related to F3 regs
         if (OUTPUT_10BIT)
         {
             EngDrvOutLV(0xC0F37AE4, 0x40200);
@@ -2514,9 +2515,10 @@ if ((RECORDING && (is_EOSM || is_100D || is_5D3)) || (!is_EOSM && !is_100D && !i
             EngDrvOutLV(0xC0F37AFC, 0x20200);
             EngDrvOutLV(0xC0F37B08, 0x20200);
         }
+         */
         
-        /* old routine
-        if (OUTPUT_10BIT)
+        // old routine
+         if (OUTPUT_10BIT)
          {
              EngDrvOutLV(0xC0F42744, 0x4040404);
          }
@@ -2525,7 +2527,7 @@ if ((RECORDING && (is_EOSM || is_100D || is_5D3)) || (!is_EOSM && !is_100D && !i
          {
              EngDrvOutLV(0xC0F42744, 0x2020202);
          }
-         */
+         
     
 }
         
@@ -3998,7 +4000,7 @@ static inline uint32_t reg_override_mcm_mv1080_eosm(uint32_t reg, uint32_t old_v
         
         EngDrvOutLV(0xC0F4204C, 0x8790145);
         EngDrvOutLV(0xC0F42014, 0x8790145);
-        EngDrvOutLV(0xC0F38070, 0x8790145);
+       //EngDrvOutLV(0xC0F38070, 0x8790145); Causing random crashes, at least with 48fps
     }
     else
     {
@@ -4012,7 +4014,7 @@ static inline uint32_t reg_override_mcm_mv1080_eosm(uint32_t reg, uint32_t old_v
         
         EngDrvOutLV(0xC0F4204C, 0x3d401b5);
         EngDrvOutLV(0xC0F42014, 0x3d401b5);
-        EngDrvOutLV(0xC0F38070, 0x3d401b5);
+        //EngDrvOutLV(0xC0F38070, 0x3d401b5);
     }
     
     if (ratios == 0x0 && x3crop == 0x0)
@@ -4126,7 +4128,7 @@ static inline uint32_t reg_override_3x3_48fps_eosm(uint32_t reg, uint32_t old_va
     /* helps when selecting a new preset */
     if (gui_menu_shown() && !RECORDING) *(volatile uint32_t*)0xC0F06014 = 0x643;
     
-    //zoom function while recording
+    // zoom function while recording
     if (get_halfshutter_pressed())
     {
         EngDrvOutLV(0xc0f11ACC, 0x40004);
@@ -4135,7 +4137,7 @@ static inline uint32_t reg_override_3x3_48fps_eosm(uint32_t reg, uint32_t old_va
         
         EngDrvOutLV(0xC0F4204C, 0x8790145);
         EngDrvOutLV(0xC0F42014, 0x8790145);
-        EngDrvOutLV(0xC0F38070, 0x8790145);
+        //EngDrvOutLV(0xC0F38070, 0x8790145); Causing random crashes, at least with 48fps
     }
     else
     {
@@ -4145,8 +4147,9 @@ static inline uint32_t reg_override_3x3_48fps_eosm(uint32_t reg, uint32_t old_va
         
         EngDrvOutLV(0xC0F4204C, 0x2ba01b5);
         EngDrvOutLV(0xC0F42014, 0x2ba01b5);
-        EngDrvOutLV(0xC0F38070, 0x2ba01b5);
+       //EngDrvOutLV(0xC0F38070, 0x2ba01b5);
     }
+    
     
     /* compensates for black level issues with analog gain. Used for both 10 and 12 bit */
    // if (bitdepth && RECORDING) *(volatile uint32_t*)0xC0F08560 = 0x7f6;
