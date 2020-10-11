@@ -6208,6 +6208,8 @@ static int crop_rec_needs_lv_refresh()
             presets = 0;
             bitdepth = 0x2;
             menu_set_str_value_from_script("Movie", "raw video", "ON", 1);
+            menu_set_str_value_from_script("raw video", "Crop rec preview", "auto mode", 1);
+            menu_set_str_value_from_script("raw video", "Preview", "Framing", 1);
             msleep(200);
             set_lv_zoom(5);
             PauseLiveView();
@@ -6225,6 +6227,8 @@ static int crop_rec_needs_lv_refresh()
             presets = 0;
             bitdepth = 0x1;
             menu_set_str_value_from_script("Movie", "raw video", "ON", 1);
+            menu_set_str_value_from_script("raw video", "Crop rec preview", "auto mode", 1);
+            menu_set_str_value_from_script("raw video", "Preview", "Framing", 1);
             msleep(200);
             set_lv_zoom(5);
             PauseLiveView();
