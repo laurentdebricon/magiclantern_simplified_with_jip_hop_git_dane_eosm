@@ -2440,6 +2440,52 @@ static int raw_rec_should_preview(void)
             if (shamem_read(0xc0f06804) == 0x4a601d4 && cam_eos_m) long_halfshutter_press = 0;
 >>>>>>> 7a6f35c96 (crop_rec.c,mlv_lite.c:(EOSM anamorphic frtp mode with hdmi support. Fix for halfshutter while running real time preview and cropmarks kept))
         }
+<<<<<<< HEAD
+=======
+/* trying a fix for stuck real time preview(only affects framing) */
+      if (PREVIEW_ML && (cam_eos_m || cam_100d))
+      {
+/* regs for eosm,650d,700d,100d */
+	if (RAW_IS_RECORDING && (shamem_read(0xc0f383d4) == 0x4efffc)) // x3 digital zoom
+	{
+        //Will exclude anamorphic flv 1736x2930 18fps. Real time preview causes corruption.
+        if (shamem_read(0xc0f06804) == 0xb9101e4 && shamem_read(0xc0f06014) != 0xd59)
+        {
+	       EngDrvOutLV(0xc0f383d4, 0x4f0010);
+	       EngDrvOutLV(0xc0f383dc, 0x42401c6);
+        }
+	}
+/* let´s not assume all modes are working. Needs more testing. Pause it for now
+	if (RAW_IS_RECORDING && (shamem_read(0xc0f383d4) == 0x152ff1f)) // x5 zoom
+	{
+	      EngDrvOutLV(0xc0f383d4, 0x15300af);
+	      EngDrvOutLV(0xc0f383dc, 0x40c01b7);
+	}
+
+	if (RAW_IS_RECORDING && (shamem_read(0xc0f383d4) == 0x1cffaa)) // mv1080p mode
+	{
+	      EngDrvOutLV(0xc0f383d4, 0x1d000e);
+              EngDrvOutLV(0xc0f383dc, 0x4a601c4);
+	}
+	if (RAW_IS_RECORDING && (shamem_read(0xc0f383d4) == 0x1bffaa)) // mv720p mode
+	{
+	      EngDrvOutLV(0xc0f383d4, 0x1c000e);
+              EngDrvOutLV(0xc0f383dc, 0x2d701c4);
+        }
+*/
+/* only 6D */
+/* Levas reporting not getting any better recordings out of this. Let´s take it out for now
+	if (RAW_IS_RECORDING && (shamem_read(0xc0f383d4) == 0xa1ff2f)) // x5 zoom cam 6D
+	{
+	      EngDrvOutLV(0xc0f383d4, 0xa200bf);
+	      EngDrvOutLV(0xc0f383dc, 0x39a01de);
+	}
+*/      //pause it. Better recording performance
+        if (RAW_IS_RECORDING && rec_trigger != 3) bmp_off();
+
+       }
+
+>>>>>>> f6632c808 (crop_rec.c:(EOSM set 25fps enables 18fps only framing flv anamoprhic))
     }
 
     if (autofocusing)

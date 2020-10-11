@@ -4464,11 +4464,11 @@ static inline uint32_t reg_override_anamorphic_rewired_flv_eosm(uint32_t reg, ui
             case 0xC0F06804: return 0xb9101e4 + reg_6804_width + (reg_6804_height << 16);
                 
                 //dualiso, static lines, but how often will dualiso be used? case 0xC0F06014: return 0xbcf + reg_6014;
-            case 0xC0F06014: return 0xd77 + reg_6014 + flvtl*2000;
-            case 0xC0F0600c: return 0x2430243 + reg_6008 + (reg_6008 << 16);
-            case 0xC0F06008: return 0x2430243 + reg_6008 + (reg_6008 << 16);
-            case 0xC0F06010: return 0x243 + reg_6008;
-                
+            case 0xC0F06014: return set_25fps ? 0xd77 - 30 + reg_6014: 0xd77 + flvtl*2000;
+            case 0xC0F0600c: return set_25fps ? 0x2430243 - 60 + reg_6008 + (reg_6008 << 16): 0x2430243 + reg_6008 + (reg_6008 << 16);
+            case 0xC0F06008: return set_25fps ? 0x2430243 - 60 + reg_6008 + (reg_6008 << 16): 0x2430243 + reg_6008 + (reg_6008 << 16);
+            case 0xC0F06010: return set_25fps ? 0x243 - 60 + reg_6008: 0x243 + reg_6008;
+                                                
             case 0xC0F0713c: return 0xb96 + reg_713c;
                 
                 /* dummy reg for height modes eosm in raw.c */
