@@ -6146,11 +6146,13 @@ static int crop_rec_needs_lv_refresh()
             bitdepth = 0;
             menu_set_str_value_from_script("Movie", "raw video", "ON", 1);
             msleep(200);
-            set_lv_zoom(1);
             PauseLiveView();
             msleep(100);
             ResumeLiveView();
             movie_crop_hack_disable();
+            //needed to reset cropmarks
+            set_lv_zoom(5);
+            set_lv_zoom(1);
             release = 0;
             release_b = 0;
             return 0;
@@ -6164,11 +6166,13 @@ static int crop_rec_needs_lv_refresh()
             bitdepth = 0x1;
             menu_set_str_value_from_script("Movie", "raw video", "ON", 1);
             msleep(200);
-            set_lv_zoom(1);
             PauseLiveView();
             msleep(100);
             ResumeLiveView();
             movie_crop_hack_disable();
+            //needed to reset cropmarks
+            set_lv_zoom(5);
+            set_lv_zoom(1);
             release = 0;
             release_b = 0;
             return 0;
