@@ -1470,6 +1470,7 @@ static void FAST cmos_hook(uint32_t* regs, uint32_t* stack, uint32_t pc)
                 if (!ratios) cmos_new[7] = 0x1;
                 if (ratios == 1 || ratios == 2) cmos_new[7] = 0x6;
                 if (ratios == 3) cmos_new[7] = 0xf20;
+                if (set_25fps && (ratios == 1 || ratios == 2)) cmos_new[7] = 0x808;
                 break;
                 
             case CROP_PRESET_Anamorphic_EOSM_frtp:
@@ -4422,10 +4423,10 @@ static inline uint32_t reg_override_anamorphic_rewired_flv_eosm(uint32_t reg, ui
             case 0xC0F06804: return 0x8a301e4 + reg_6804_width + (reg_6804_height << 16);
                 
                 //dualiso, static lines, but how often will dualiso be used? case 0xC0F06014: return 0xbcf + reg_6014;
-            case 0xC0F06014: return 0xbca + reg_6014 + flvtl*2000;
-            case 0xC0F0600c: return 0x2110211 + reg_6008 + (reg_6008 << 16);
-            case 0xC0F06008: return 0x2110211 + reg_6008 + (reg_6008 << 16);
-            case 0xC0F06010: return 0x211 + reg_6008;
+            case 0xC0F06014: return set_25fps ? 0xbca - 442: 0xbca + flvtl*2000;
+            case 0xC0F0600c: return set_25fps ? 0x2110211 - 12  + reg_6008 + (reg_6008 << 16): 0x2110211 + reg_6008 + (reg_6008 << 16);
+            case 0xC0F06008: return set_25fps ? 0x2110211 - 12  + reg_6008 + (reg_6008 << 16): 0x2110211 + reg_6008 + (reg_6008 << 16);
+            case 0xC0F06010: return set_25fps ? 0x211 - 12 + reg_6008: 0x211 + reg_6008;
                 
             case 0xC0F0713c: return 0x8a8 + reg_713c;
                 
@@ -4443,10 +4444,10 @@ static inline uint32_t reg_override_anamorphic_rewired_flv_eosm(uint32_t reg, ui
             case 0xC0F06804: return 0x8c701e4 + reg_6804_width + (reg_6804_height << 16);
                 
                 //dualiso, static lines, but how often will dualiso be used? case 0xC0F06014: return 0xbcf + reg_6014;
-            case 0xC0F06014: return 0xbca + reg_6014 + flvtl*2000;
-            case 0xC0F0600c: return 0x2110211 + reg_6008 + (reg_6008 << 16);
-            case 0xC0F06008: return 0x2110211 + reg_6008 + (reg_6008 << 16);
-            case 0xC0F06010: return 0x211 + reg_6008;
+            case 0xC0F06014: return set_25fps ? 0xbca - 442: 0xbca + flvtl*2000;
+            case 0xC0F0600c: return set_25fps ? 0x2110211 - 12  + reg_6008 + (reg_6008 << 16): 0x2110211 + reg_6008 + (reg_6008 << 16);
+            case 0xC0F06008: return set_25fps ? 0x2110211 - 12  + reg_6008 + (reg_6008 << 16): 0x2110211 + reg_6008 + (reg_6008 << 16);
+            case 0xC0F06010: return set_25fps ? 0x211 - 12 + reg_6008: 0x211 + reg_6008;
                 
             case 0xC0F0713c: return 0x8cc + reg_713c;
                 
@@ -5268,7 +5269,7 @@ static struct menu_entry crop_rec_menu[] =
                 "2.8k 1:1 crop. Only 2.39:1, 2.35:1.\n"
                 "full HD high speed frame rate. Push SET for x3crop mode.\n"
                 "8bit: canon MOV mode. Push SET for x3crop mode.\n"
-                "5k full liveview readout (no ratio=14fps. Ratios up to 20fps.).\n"
+                "5k full liveview readout (no ratio=14fps. set 25fps increases fps).\n"
                 "resets to HD 1080p 2.39:1 14bit lossless mode.\n"
             },
             {
@@ -6165,6 +6166,8 @@ static int crop_rec_needs_lv_refresh()
             presets = 0;
             bitdepth = 0x1;
             menu_set_str_value_from_script("Movie", "raw video", "ON", 1);
+            menu_set_str_value_from_script("raw video", "Crop rec preview", "auto mode", 1);
+            menu_set_str_value_from_script("raw video", "Preview", "Framing", 1);
             msleep(200);
             PauseLiveView();
             msleep(100);
@@ -6277,6 +6280,8 @@ static int crop_rec_needs_lv_refresh()
             presets = 0;
             bitdepth = 0x1;
             menu_set_str_value_from_script("Movie", "raw video", "ON", 1);
+            menu_set_str_value_from_script("raw video", "Crop rec preview", "auto mode", 1);
+            menu_set_str_value_from_script("raw video", "Preview", "Framing", 1);
             msleep(200);
             set_lv_zoom(1);
             PauseLiveView();

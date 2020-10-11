@@ -2448,8 +2448,8 @@ static int raw_rec_should_preview(void)
 /* regs for eosm,650d,700d,100d */
 	if (RAW_IS_RECORDING && (shamem_read(0xc0f383d4) == 0x4efffc)) // x3 digital zoom
 	{
-        //Will exclude anamorphic flv 1736x2930 18fps. Real time preview causes corruption.
-        if (shamem_read(0xc0f06804) == 0xb9101e4 && shamem_read(0xc0f06014) != 0xd59)
+        //Will exclude anamorphic flv 1736x2930 with set_25fps set. Real time preview causes corruption.
+        if ((shamem_read(0xc0f06014) != 0xd59) && (shamem_read(0xc0f06014) != 0xa10))
         {
 	       EngDrvOutLV(0xc0f383d4, 0x4f0010);
 	       EngDrvOutLV(0xc0f383dc, 0x42401c6);
