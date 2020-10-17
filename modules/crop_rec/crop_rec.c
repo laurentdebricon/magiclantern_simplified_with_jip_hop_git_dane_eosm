@@ -46,7 +46,7 @@ static CONFIG_INT("crop.ratios", ratios, 1);
 static CONFIG_INT("crop.x3crop", x3crop, 0);
 static CONFIG_INT("crop.flvtl", flvtl, 0);
 static CONFIG_INT("crop.flvtl4k", flvtl4k, 0);
-static CONFIG_INT("crop.zoomaid", zoomaid, 0);
+static CONFIG_INT("crop.zoomaid", zoomaid, 2);
 static CONFIG_INT("crop.x3toggle", x3toggle, 2);
 static CONFIG_INT("crop.set_25fps", set_25fps, 0);
 static CONFIG_INT("crop.framestop", framestop, 0);
@@ -59,7 +59,7 @@ static CONFIG_INT("crop.gain_buttons", gain_buttons, 4);
 static CONFIG_INT("crop.dropdown", dropdown, 1);
 static CONFIG_INT("crop.iso_climb", iso_climb, 1);
 static CONFIG_INT("crop.presets", presets, 0);
-static CONFIG_INT("crop.presets", previews, 0);
+static CONFIG_INT("crop.presets", previews, 1);
 
 CONFIG_INT("crop.bitdepth", bitdepth, 0);
 #define OUTPUT_10BIT (bitdepth == 1)
@@ -877,6 +877,13 @@ static inline void FAST calc_skip_offsets(int * p_skip_left, int * p_skip_right,
                 skip_left       = 72;
                 skip_right      = 0;
                 skip_top        = 30;
+                skip_bottom     = 0;
+            }
+            if (!ratios && set_25fps)
+            {
+                skip_left       = 72;
+                skip_right      = 132;
+                skip_top        = 122;
                 skip_bottom     = 0;
             }
             break;
@@ -4160,7 +4167,14 @@ static inline uint32_t reg_override_3x3_48fps_eosm(uint32_t reg, uint32_t old_va
         return 0;
     }
     
-    if ((ratios != 0x1) && (ratios != 0x2) && (ratios != 0x3))
+    //freeze liveview for this specific setting or getting corrupted frames
+    if (!ratios && set_25fps && RECORDING)
+    {
+        EngDrvOutLV(0xc0f383d4, 0x1b00af + reg_83d4);
+        EngDrvOutLV(0xc0f383dc, 0x3d401b7 + reg_83dc);
+    }
+    
+    if (!ratios)
     {
         switch (reg)
         {
@@ -4169,11 +4183,10 @@ static inline uint32_t reg_override_3x3_48fps_eosm(uint32_t reg, uint32_t old_va
             case 0xC0F07150: return 0x4a0 + reg_7150;
                 
                 /* 30 fps continuous */
-            case 0xC0F06014: return 0x7b7 + reg_6014;
-                
-            case 0xC0F0600c: return 0x21b021b + reg_6008 + (reg_6008 << 16);
-            case 0xC0F06008: return 0x21b021b + reg_6008 + (reg_6008 << 16);
-            case 0xC0F06010: return 0x21b + reg_6008;
+            case 0xC0F06014: return set_25fps ? 0x7b7 - 299 + reg_6014: 0x7b7 + reg_6014;
+            case 0xC0F0600c: return set_25fps ? 0x21b021b - 10 + reg_6008 + (reg_6008 << 16): 0x21b021b + reg_6008 + (reg_6008 << 16);
+            case 0xC0F06008: return set_25fps ? 0x21b021b - 10 + reg_6008 + (reg_6008 << 16): 0x21b021b + reg_6008 + (reg_6008 << 16);
+            case 0xC0F06010: return set_25fps ? 0x21b -10 + reg_6008: 0x21b + reg_6008;
                 
                 /* dummy reg for height modes eosm in raw.c */
             case 0xC0f0b13c: return 0xa;
@@ -6306,9 +6319,9 @@ static int crop_rec_needs_lv_refresh()
             x3crop = 0x0;
             x3toggle = 0x2;
             zoomaid = 0x2;
-            gain_buttons = 4;
+            gain_buttons = 1;
             shutter_range = 0;
-            previews = 0;
+            previews = 1;
             dropdown = 1;
             isoauto = 0;
             ratios = 1;

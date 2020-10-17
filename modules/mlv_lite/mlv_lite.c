@@ -2395,6 +2395,8 @@ static int raw_rec_should_preview(void)
     {
         if ((raw_active_height > 1300 || raw_active_width > 1800) && RAW_IS_IDLE) preview_mode = 2;
         if (raw_active_height < 1300 && raw_active_width < 1801 && RAW_IS_IDLE) preview_mode = 1;
+        //enable framing for 48fps mode no ratio and set_25fps eosm
+        if (shamem_read(0xc0f06014) == 0x68c) preview_mode = 2;
     }
 >>>>>>> ae44d9695 (crop_rec.c,mlv_lite.c:(EOSM enable x3crop when pushing SET also with anamorphic mode))
 
