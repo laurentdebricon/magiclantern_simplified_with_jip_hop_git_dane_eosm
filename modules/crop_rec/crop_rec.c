@@ -4840,12 +4840,12 @@ if (ratios == 3)
 {
     switch (reg)
     {
-        case 0xC0F06804: return 0x88C0162 + reg_6804_width + (reg_6804_height << 16);
+        case 0xC0F06804: return 0x88d0162 + reg_6804_width + (reg_6804_height << 16);
         case 0xC0F06014: return 0xa2b + reg_6014;
         case 0xC0F0600c: return 0x1ff01ff + reg_6008 + (reg_6008 << 16);
         case 0xC0F06008: return 0x1ff01ff + reg_6008 + (reg_6008 << 16);
         case 0xC0F06010: return 0x1ff + reg_6008;
-        case 0xC0F0713c: return 0x88c + reg_713c;
+        case 0xC0F0713c: return 0x88d + reg_713c;
     }
 }
     
