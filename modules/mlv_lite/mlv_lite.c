@@ -267,7 +267,7 @@ static void refresh_cropmarks()
         set_movie_cropmarks(x, y, w, h);
     }
     
-    if (lv_dispsize == 5 && shamem_read(0xC0F06804) == 0x88C0162) //anamorphic 16:9 frtp
+    if (lv_dispsize == 5 && shamem_read(0xC0F06804) == 0x88d0162) //anamorphic 16:9 frtp
     {
 
         int x = RAW2BM_X(0);
