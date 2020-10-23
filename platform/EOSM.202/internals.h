@@ -17,6 +17,7 @@
 
 /** This camera has a DIGIC V chip */
 #define CONFIG_DIGIC_V
+#define CONFIG_KILL_FLICKER
 
 /** This camera has an APS-C sensor */
 //~ #define CONFIG_FULLFRAME

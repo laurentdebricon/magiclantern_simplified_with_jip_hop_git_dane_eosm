@@ -3387,6 +3387,16 @@ extern MENU_UPDATE_FUNC(display_gain_print);
 extern int display_gain_menu_index;
 
 static struct menu_entry display_menus[] = {
+    #ifdef CONFIG_KILL_FLICKER
+        {
+            .name       = "Kill Canon GUI",
+            .priv       = &kill_canon_gui_mode,
+            .max        = 1,
+            .choices    = CHOICES("OFF", "ON"),
+            .depends_on = DEP_GLOBAL_DRAW,
+            .help = "Workarounds for disabling Canon graphics elements."
+        },
+    #endif
             #ifdef FEATURE_DIGIC_FOCUS_PEAKING
             {
                 .name = "LV DIGIC peaking",
@@ -3557,16 +3567,6 @@ static struct menu_entry display_menus[] = {
         .submenu_width = 710,
         .help = "Screen orientation, position fine-tuning...",
         .children =  (struct menu_entry[]) {
-            #ifdef CONFIG_KILL_FLICKER
-                {
-                    .name       = "Kill Canon GUI",
-                    .priv       = &kill_canon_gui_mode,
-                    .max        = 2,
-                    .choices    = CHOICES("OFF", "Idle/Menus", "Idle/Menus+Keys"),
-                    .depends_on = DEP_GLOBAL_DRAW,
-                    .help = "Workarounds for disabling Canon graphics elements."
-                },
-            #endif
             #ifdef FEATURE_SCREEN_LAYOUT
                 {
                     .name = "Screen Layout",
