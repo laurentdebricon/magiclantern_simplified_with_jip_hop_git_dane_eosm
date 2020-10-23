@@ -637,6 +637,27 @@ static inline void FAST calc_skip_offsets(int * p_skip_left, int * p_skip_right,
             skip_right      = 0;
             skip_top        = 28;
             skip_bottom     = 4;
+            if (ratios == 0x1)
+            {
+                skip_left       = 72;
+                skip_right      = 0;
+                skip_top        = 228;
+                skip_bottom     = 276;
+            }
+            if (ratios == 0x2)
+            {
+                skip_left       = 72;
+                skip_right      = 0;
+                skip_top        = 228;
+                skip_bottom     = 266;
+            }
+            if (ratios == 0x3)
+            {
+                skip_left       = 72;
+                skip_right      = 0;
+                skip_top        = 128;
+                skip_bottom     = 100;
+            }
             break;
             
         case CROP_PRESET_CENTER_Z_EOSM:
@@ -7333,12 +7354,12 @@ static LVINFO_UPDATE_FUNC(crop_info)
     
     if (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM || CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_frtp || CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_hdmi)
     {
-        snprintf(buffer, sizeof(buffer), "2.5K centered");
+        snprintf(buffer, sizeof(buffer), "2.5k centered");
     }
     
     if (CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1276_frtp)
     {
-        snprintf(buffer, sizeof(buffer), "1920x1276 1:1");
+        snprintf(buffer, sizeof(buffer), "2k 1:1");
     }
         
     if (CROP_PRESET_MENU == CROP_PRESET_3K_EOSM)
