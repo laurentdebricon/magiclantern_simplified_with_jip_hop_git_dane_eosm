@@ -2482,7 +2482,7 @@ if ((RECORDING && (is_EOSM || is_100D || is_5D3)) || (!is_EOSM && !is_100D && !i
 
     //TODO - test with hdmi for corruption with anamorphic frtp mode
     // bilal routines. black level
-    if (OUTPUT_10BIT || OUTPUT_12BIT)
+    if ((OUTPUT_10BIT || OUTPUT_12BIT) && CROP_PRESET_MENU != CROP_PRESET_Anamorphic_EOSM_frtp)
     {
         if (lens_info.iso_analog_raw == ISO_400)
         {
