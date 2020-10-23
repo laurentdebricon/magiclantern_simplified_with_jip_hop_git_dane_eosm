@@ -271,7 +271,7 @@ static const char * crop_choices_eosm[] = {
     //"h264",
     "2.5K 1:1 centered frtp",
     "2.5K 1:1 centered hdmi",
-    "x5crop 1920x1276 frtp",
+    "2K 1:1 frtp",
     "5K anamorphic frtp",
     // "4K 3x1 24fps",
     // "5K 3x1 24fps",
@@ -297,7 +297,7 @@ static const char crop_choices_help2_eosm[] =
 //"h264 MOV)\n"
 "1:1 2K x5crop, regular preview(almost!). Please enable Kill Canon GUI\n"
 "1:1 2K x5crop, regular preview HDMI. Please enable Kill Canon GUI\n"
-"x5crop, 1920x1276 regular preview. Please enable Kill Canon GUI\n"
+"1:1 2K, 1920x1276 regular preview. Please enable Kill Canon GUI\n"
 "1x3 anamorphic, regular preview. Please enable Kill Canon GUI\n";
 // "3:1 4K x5crop, framing preview\n"
 // "3:1 5K x5crop, framing preview\n"
@@ -897,7 +897,7 @@ static inline void FAST calc_skip_offsets(int * p_skip_left, int * p_skip_right,
             
         case CROP_PRESET_anamorphic_rewired_EOSM:
             /* see autodetect_black_level exception in raw.c */
-            if (ratios == 0x0 || presets == 0x7)
+            if (ratios == 0x0 || presets == 0x9)
             {
                 skip_right      = 58;
                 break;
@@ -1467,8 +1467,8 @@ static void FAST cmos_hook(uint32_t* regs, uint32_t* stack, uint32_t pc)
             case CROP_PRESET_anamorphic_rewired_EOSM:
                 cmos_new[5] = 0x20;
                 if (ratios) cmos_new[7] = 0xf27;
-                if (!ratios || presets == 0x7) cmos_new[7] = 0x1;
-                if ((!ratios || presets == 0x7) && set_25fps) cmos_new[7] = 0xf20;
+                if (!ratios || presets == 0x9) cmos_new[7] = 0x1;
+                if ((!ratios || presets == 0x9) && set_25fps) cmos_new[7] = 0xf20;
                 break;
                 
             case CROP_PRESET_anamorphic_rewired_flv_EOSM:
@@ -4354,7 +4354,7 @@ static inline uint32_t reg_override_anamorphic_rewired_eosm(uint32_t reg, uint32
         }
     }
     
-    if ((!ratios || presets == 0x7) && !set_25fps)
+    if ((!ratios || presets == 0x9) && !set_25fps)
     {
         /* full readout */
         switch (reg)
@@ -4374,7 +4374,7 @@ static inline uint32_t reg_override_anamorphic_rewired_eosm(uint32_t reg, uint32
     }
     
     //silent film mode
-    if ((!ratios || presets == 0x7) && set_25fps)
+    if ((!ratios || presets == 0x9) && set_25fps)
     {
         /* full readout */
         switch (reg)
@@ -5271,17 +5271,18 @@ static struct menu_entry crop_rec_menu[] =
             {
                 .name   = "startoff presets",
                 .priv   = &presets,
-                .max    = 9,
-                .choices = CHOICES("None selected", "HD 1080p", "5k anamorphic", "5k anamorphic frtp", "2.5k 1:1 crop", "2.8k 1:1 crop", "HD 1080p hf", "h264 8bit","5k anamorphic flv", "default reset"),
+                .max    = 10,
+                .choices = CHOICES("None selected", "HD 1080p", "5k anamorphic frtp", "2k 1:1 crop frtp", "2.5k 1:1 crop", "2.8k 1:1 crop", "HD 1080p hf", "h264 8bit", "5k anamorphic", "5k anamorphic flv", "default reset"),
                 .help   = "2.39:1 ratio recommended for anamorphic and higher resolutions",
                 .help2  ="passthrough\n"
                 "14bit: lossless full HD. Push SET for x3crop mode.\n"
-                "5k anamorphic 1x3 pixel binning. Push SET for x3crop mode.\n"
-                "5k anamorphic full realtime preview. 16:9 only 24fps.\n"
+                "5k anamorphic normal realtime preview. 16:9 only 24fps.\n"
+                "2k 1:1 crop normal realtime preview.\n"
                 "2.5k 1:1 crop.\n"
                 "2.8k 1:1 crop. Only 2.39:1, 2.35:1.\n"
                 "full HD high speed frame rate. Push SET for x3crop mode.\n"
                 "8bit: canon MOV mode. Push SET for x3crop mode.\n"
+                "5k anamorphic 1x3 pixel binning. Push SET for x3crop mode.\n"
                 "5k full liveview readout (no ratio=14fps. set 25fps increases fps).\n"
                 "resets to HD 1080p 2.39:1 14bit lossless mode.\n"
             },
@@ -6172,25 +6173,23 @@ static int crop_rec_needs_lv_refresh()
             release_b = 0;
             return 0;
         }
-        
+                
         if (presets == 0x2)
         {
-            NotifyBox(2000, "5k anamorphic 10bit");
-            crop_preset_index = 6;
+            NotifyBox(2000, "5k anamorphic frtp 12bit");
+            crop_preset_index = 12;
             presets = 0;
-            bitdepth = 0x1;
+            bitdepth = 0x2;
             menu_set_str_value_from_script("Movie", "raw video", "ON", 1);
-            menu_set_str_value_from_script("raw video", "Crop rec preview", "auto mode", 1);
-            menu_set_str_value_from_script("raw video", "Preview", "Framing", 1);
-            menu_set_str_value_from_script("Display", "Kill Canon GUI", "OFF", 1);
+            menu_set_str_value_from_script("raw video", "Crop rec preview", "OFF", 1);
+            menu_set_str_value_from_script("raw video", "Preview", "Real-time", 1);
+            menu_set_str_value_from_script("Display", "Kill Canon GUI", "ON", 1);
             msleep(200);
+            set_lv_zoom(5);
             PauseLiveView();
             msleep(100);
             ResumeLiveView();
             movie_crop_hack_disable();
-            //needed to reset cropmarks
-            set_lv_zoom(5);
-            set_lv_zoom(1);
             release = 0;
             release_b = 0;
             return 0;
@@ -6198,10 +6197,10 @@ static int crop_rec_needs_lv_refresh()
         
         if (presets == 0x3)
         {
-            NotifyBox(2000, "5k anamorphic frtp 12bit");
-            crop_preset_index = 12;
+            NotifyBox(2000, "2k 1:1 crop frtp");
+            crop_preset_index = 11;
             presets = 0;
-            bitdepth = 0x2;
+            bitdepth = 0x0;
             menu_set_str_value_from_script("Movie", "raw video", "ON", 1);
             menu_set_str_value_from_script("raw video", "Crop rec preview", "OFF", 1);
             menu_set_str_value_from_script("raw video", "Preview", "Real-time", 1);
@@ -6299,6 +6298,29 @@ static int crop_rec_needs_lv_refresh()
         
         if (presets == 0x8)
         {
+            NotifyBox(2000, "5k anamorphic 10bit");
+            crop_preset_index = 6;
+            presets = 0;
+            bitdepth = 0x1;
+            menu_set_str_value_from_script("Movie", "raw video", "ON", 1);
+            menu_set_str_value_from_script("raw video", "Crop rec preview", "auto mode", 1);
+            menu_set_str_value_from_script("raw video", "Preview", "Framing", 1);
+            menu_set_str_value_from_script("Display", "Kill Canon GUI", "OFF", 1);
+            msleep(200);
+            PauseLiveView();
+            msleep(100);
+            ResumeLiveView();
+            movie_crop_hack_disable();
+            //needed to reset cropmarks
+            set_lv_zoom(5);
+            set_lv_zoom(1);
+            release = 0;
+            release_b = 0;
+            return 0;
+        }
+        
+        if (presets == 0x9)
+        {
             NotifyBox(2000, "5k anamorphic full sensor readout");
             crop_preset_index = 7;
             presets = 0;
@@ -6318,7 +6340,7 @@ static int crop_rec_needs_lv_refresh()
             return 0;
         }
         
-        if (presets == 0x9)
+        if (presets == 0xa)
         {
             NotifyBox(2000, "default reset");
             crop_preset_index = 0;
@@ -7268,7 +7290,7 @@ static LVINFO_UPDATE_FUNC(crop_info)
         {
             snprintf(buffer, sizeof(buffer), "anamorph 16:9");
         }
-        if (ratios == 0x0 || presets == 0x7)
+        if (ratios == 0x0 || presets == 0x9)
         {
             snprintf(buffer, sizeof(buffer), "anamorph flv");
         }
@@ -7289,7 +7311,7 @@ static LVINFO_UPDATE_FUNC(crop_info)
         {
             snprintf(buffer, sizeof(buffer), "flv 16:9");
         }
-        if (ratios == 0x0 || presets == 0x7)
+        if (ratios == 0x0 || presets == 0x9)
         {
             snprintf(buffer, sizeof(buffer), "flv");
         }
