@@ -6198,10 +6198,10 @@ static int crop_rec_needs_lv_refresh()
         
         if (presets == 0x3)
         {
-            NotifyBox(2000, "5k anamorphic frtp 14bit");
+            NotifyBox(2000, "5k anamorphic frtp 12bit");
             crop_preset_index = 12;
             presets = 0;
-            bitdepth = 0x0;
+            bitdepth = 0x2;
             menu_set_str_value_from_script("Movie", "raw video", "ON", 1);
             menu_set_str_value_from_script("raw video", "Crop rec preview", "OFF", 1);
             menu_set_str_value_from_script("raw video", "Preview", "Real-time", 1);
