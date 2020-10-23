@@ -2486,23 +2486,23 @@ if ((RECORDING && (is_EOSM || is_100D || is_5D3)) || (!is_EOSM && !is_100D && !i
     {
         if (lens_info.iso_analog_raw == ISO_400)
         {
-            EngDrvOutLV(0xC0F0819C, 0xC3b);
+            *(volatile uint32_t*)0xC0F0819C = 0xC3b;
         }
         if (lens_info.iso_analog_raw == ISO_800)
         {
-            EngDrvOutLV(0xC0F0819C, 0xC3e);
+            *(volatile uint32_t*)0xC0F0819C = 0xC3e;
         }
         if (lens_info.iso_analog_raw == ISO_1600)
         {
-            EngDrvOutLV(0xC0F0819C, 0xC43);
+            *(volatile uint32_t*)0xC0F0819C = 0xC43;
         }
         if (lens_info.iso_analog_raw == ISO_3200)
         {
-            EngDrvOutLV(0xC0F0819C, 0xC4c);
+            *(volatile uint32_t*)0xC0F0819C = 0xC4c;
         }
         if (lens_info.raw_iso == ISO_6400)
         {
-            EngDrvOutLV(0xC0F0819C, 0xC61);
+            *(volatile uint32_t*)0xC0F0819C = 0xC61;
         }
     }
     
