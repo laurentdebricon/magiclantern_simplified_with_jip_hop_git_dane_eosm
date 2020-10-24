@@ -4911,6 +4911,9 @@ static inline uint32_t reg_override_center_z_eosm_1920x1276_frtp(uint32_t reg, u
     if (lv_dispsize == 10) return 0;
     
              EngDrvOutLV(0xC0F09050, 0x3002D0);     /* Making LiveView somoother */
+
+    if (!get_halfshutter_pressed())
+    {
              EngDrvOutLV(0xc0f11B9C, 0x500077F);
              EngDrvOutLV(0xc0f1A00C, 0x500077F);
              EngDrvOutLV(0xc0f118DC, 0x500077F);
@@ -4946,6 +4949,51 @@ static inline uint32_t reg_override_center_z_eosm_1920x1276_frtp(uint32_t reg, u
              EngDrvOutLV(0xC0F42194, 0x1E5);
              EngDrvOutLV(0xC0F4204C, 0x50901E5);
              EngDrvOutLV(0xC0F42014, 0x50901E5);
+    }
+    
+    
+    if (get_halfshutter_pressed())
+    {
+                    EngDrvOutLV(0xc0f11B9C, 0x2AF0407);
+                    EngDrvOutLV(0xc0f1A00C, 0x2AF0407);
+                    EngDrvOutLV(0xc0f118DC, 0x2AF0407);
+                    EngDrvOutLV(0xc0f118E4, 0x2AF0407);
+            
+                    EngDrvOutLV(0xc0f11B8C, 0x0);
+                    EngDrvOutLV(0xc0f11BCC, 0x0);
+                    EngDrvOutLV(0xc0f11BC8, 0x0);
+            
+                    EngDrvOutLV(0xC0F3B0DC, 0x2AF0457);
+                    EngDrvOutLV(0xC0F3B074, 0x2AF045F);
+                    EngDrvOutLV(0xC0F3B070, 0x2B5045F);
+                    EngDrvOutLV(0xC0F3B054, 0x2B5040F);
+                    EngDrvOutLV(0xC0F3A0B0, 0x2B90410);
+                    EngDrvOutLV(0xC0F3A0A0, 0x2B90413);
+                    EngDrvOutLV(0xC0F3A04C, 0x2B50107);
+                    EngDrvOutLV(0xC0F389EC, 0x1080001);
+                    EngDrvOutLV(0xC0F389E4, 0x2B60109);
+                    EngDrvOutLV(0xC0F389D4, 0x2B50107);
+                    EngDrvOutLV(0xC0F389B4, 0x2B60108);
+                    EngDrvOutLV(0xC0F389A4, 0x2B50107);
+                    EngDrvOutLV(0xC0F38960, 0x2B50000);
+                    EngDrvOutLV(0xC0F38934, 0x2B50107);
+                    EngDrvOutLV(0xC0F380A4, 0x1090000);
+                    EngDrvOutLV(0xC0F380A0, 0x1090000);
+                    EngDrvOutLV(0xC0F38094, 0x2B90000);
+                    EngDrvOutLV(0xC0F38084, 0x1090000);
+                    EngDrvOutLV(0xC0F38080, 0x2B60002);
+                    EngDrvOutLV(0xC0F3807C, 0x1070000);
+                    EngDrvOutLV(0xC0F38078, 0x1080001);
+                    EngDrvOutLV(0xC0F38070, 0x2B80107);
+                   
+                    EngDrvOutLV(0xC0F383D4, 0x123007F);
+                    EngDrvOutLV(0xC0F383DC, 0x40C0187);
+                    EngDrvOutLV(0xC0F38024, 0x7E401F1);
+            
+                    EngDrvOutLV(0xC0F42194, 0x107);
+                    EngDrvOutLV(0xC0F4204C, 0x2B80107);
+                    EngDrvOutLV(0xC0F42014, 0x2B80107);
+    }
              
          switch (reg)
          {
