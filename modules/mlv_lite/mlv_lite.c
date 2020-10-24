@@ -288,7 +288,51 @@ static void refresh_cropmarks()
        
         set_movie_cropmarks(x, y, w, h);
     }
+<<<<<<< HEAD
 >>>>>>> 40e0f63b5 (mlv_lite.c:(EOSM cropmarks automation anamorphic frtp))
+=======
+    
+    if (lv_dispsize == 5 && shamem_read(0xC0F07150) == 0x420) //2k 1:1 full window frtp 1920x1280
+    {
+        int x = RAW2BM_X(0);
+        int y = RAW2BM_Y(0);
+        int w = RAW2BM_DX(1100);
+        int h = RAW2BM_DY(700);
+        
+        set_movie_cropmarks(x, y, w, h);
+    }
+    
+    if (lv_dispsize == 5 && shamem_read(0xC0F07150) == 0x421) //2k 1:1 full window frtp 1920x806
+    {
+        int x = RAW2BM_X(0);
+        int y = RAW2BM_Y(225);
+        int w = RAW2BM_DX(1100);
+        int h = RAW2BM_DY(427);
+        
+        set_movie_cropmarks(x, y, w, h);
+    }
+    
+    if (lv_dispsize == 5 && shamem_read(0xC0F07150) == 0x422) //2k 1:1 full window frtp 1920x816
+    {
+        int x = RAW2BM_X(0);
+        int y = RAW2BM_Y(225);
+        int w = RAW2BM_DX(1100);
+        int h = RAW2BM_DY(429);
+        
+        set_movie_cropmarks(x, y, w, h);
+    }
+    
+    if (lv_dispsize == 5 && shamem_read(0xC0F07150) == 0x423) //2k 1:1 full window frtp 1920x1080
+    {
+        int x = RAW2BM_X(0);
+        int y = RAW2BM_Y(125);
+        int w = RAW2BM_DX(1100);
+        int h = RAW2BM_DY(562);
+        
+        set_movie_cropmarks(x, y, w, h);
+    }
+    
+>>>>>>> e0a726d9b (crop_rec.c,mlv_lite.c:(EOSM a lot of work getting rid of cropmarks and getting cropmarks corrected 2k frtp preset))
 }
 
 static int calc_res_y(int res_x, int max_res_y, int num, int den, float squeeze)
