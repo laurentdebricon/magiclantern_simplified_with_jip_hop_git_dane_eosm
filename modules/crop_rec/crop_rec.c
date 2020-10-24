@@ -4523,7 +4523,7 @@ static inline uint32_t reg_override_anamorphic_eosm_frtp(uint32_t reg, uint32_t 
     if (ratios == 3)
     {
         
-        if (((!get_halfshutter_pressed() || shamem_read(0xC0F14224) == 0x77F077F) && RECORDING) || !RECORDING)
+        if (!get_halfshutter_pressed() || shamem_read(0xC0F14224) == 0x77F077F)
         {
             
             if (shamem_read(0xC0F14224) == 0x77F077F)
@@ -4579,7 +4579,7 @@ static inline uint32_t reg_override_anamorphic_eosm_frtp(uint32_t reg, uint32_t 
         }
         
         //zoom function while recording. Regs from theBilalFakhouri
-        if (get_halfshutter_pressed() && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
+        if (get_halfshutter_pressed() && shamem_read(0xC0F14224) != 0x77F077F)
         {
                     EngDrvOutLV(0xC0F04210, 0x18A05A0);
                     EngDrvOutLV(0xc0f11ACC, 0x4E0088);
@@ -4634,7 +4634,7 @@ static inline uint32_t reg_override_anamorphic_eosm_frtp(uint32_t reg, uint32_t 
     
 if (ratios == 1 || ratios == 2)
 {
-    if (((!get_halfshutter_pressed() || shamem_read(0xC0F14224) == 0x77F077F) && RECORDING) || !RECORDING)
+    if (!get_halfshutter_pressed() || shamem_read(0xC0F14224) == 0x77F077F)
     {
         
         if (shamem_read(0xC0F14224) == 0x77F077F)
@@ -4692,7 +4692,7 @@ if (ratios == 1 || ratios == 2)
     }
         
         //zoom function while recording. Regs from theBilalFakhouri
-        if (get_halfshutter_pressed() && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
+        if (get_halfshutter_pressed() && shamem_read(0xC0F14224) != 0x77F077F)
         {
             EngDrvOutLV(0xC0F04210, 0x12E05A0);
             EngDrvOutLV(0xc0f11ACC, 0x8E0143);
@@ -4742,7 +4742,7 @@ if (ratios == 1 || ratios == 2)
     
 if (!ratios)
 {
-    if (((!get_halfshutter_pressed() || shamem_read(0xC0F14224) == 0x77F077F) && RECORDING) || !RECORDING)
+    if (!get_halfshutter_pressed() || shamem_read(0xC0F14224) == 0x77F077F)
     {
                 if (shamem_read(0xC0F14224) == 0x77F077F)
                 {
@@ -4804,7 +4804,7 @@ if (!ratios)
     }
     
     //zoom function while recording. Regs from theBilalFakhouri
-    if (get_halfshutter_pressed() && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
+    if (get_halfshutter_pressed() && shamem_read(0xC0F14224) != 0x77F077F)
     {
                 EngDrvOutLV(0xC0F04210, 0x15505A0);
                 EngDrvOutLV(0xc0f11ACC, 0x8E011E);
@@ -5768,13 +5768,14 @@ static struct menu_entry crop_rec_menu[] =
 
 static unsigned int crop_rec_keypress_cbr(unsigned int key)
 {
-    
+    /* No longer needed while kill canon gui is enabled
     if (get_halfshutter_pressed() && !RECORDING && !zoomaid && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp)
     {
         key = MODULE_KEY_UNPRESS_HALFSHUTTER;
         //NotifyBox(1000, "Halfshutter disabled with this preset");
         return 0;
     }
+    */
     
     static int prevmode = 0;
     if (lv_dispsize != 10 && lv && is_movie_mode() && !gui_menu_shown() && key == MODULE_KEY_INFO && previews == 0x1)
