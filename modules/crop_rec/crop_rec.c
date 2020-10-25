@@ -6333,7 +6333,7 @@ static int crop_rec_needs_lv_refresh()
             menu_set_str_value_from_script("Movie", "raw video", "ON", 1);
             menu_set_str_value_from_script("raw video", "Crop rec preview", "auto mode", 1);
             menu_set_str_value_from_script("raw video", "Preview", "Framing", 1);
-            menu_set_str_value_from_script("Display", "Kill Canon GUI", "OFF", 1);
+            menu_set_str_value_from_script("Display", "Kill Canon GUI", "ON", 1);
             msleep(200);
             set_lv_zoom(5);
             PauseLiveView();
@@ -6353,7 +6353,7 @@ static int crop_rec_needs_lv_refresh()
             menu_set_str_value_from_script("Movie", "raw video", "ON", 1);
             menu_set_str_value_from_script("raw video", "Crop rec preview", "auto mode", 1);
             menu_set_str_value_from_script("raw video", "Preview", "Framing", 1);
-            menu_set_str_value_from_script("Display", "Kill Canon GUI", "OFF", 1);
+            menu_set_str_value_from_script("Display", "Kill Canon GUI", "ON", 1);
             msleep(200);
             set_lv_zoom(5);
             PauseLiveView();
