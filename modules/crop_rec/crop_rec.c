@@ -4520,7 +4520,7 @@ static inline uint32_t reg_override_anamorphic_eosm_frtp(uint32_t reg, uint32_t 
 {
     //x10zoom possible with SET button
     if (lv_dispsize == 10) return 0;
-    
+        
     if (ratios == 3)
     {
         
@@ -4912,7 +4912,7 @@ static inline uint32_t reg_override_center_z_eosm_1920x1280_frtp(uint32_t reg, u
     if (lv_dispsize == 10) return 0;
     
     //Workaround getting a clean screen while recording with no ratio. Connected with cropmarks in mlv_lite and CBR_RET_CONTINUE
-    if (RECORDING && !ratios)
+    if ((RECORDING && !ratios) || gui_menu_shown())
     {
         bvramhack = 1;
     }
@@ -7262,7 +7262,7 @@ static unsigned int crop_rec_polling_cbr(unsigned int unused)
         }
     }
     
-    if (!RECORDING && bvramhack && !ratios && CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp)
+    if (!RECORDING && bvramhack && !ratios && CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp && !gui_menu_shown())
     {
         msleep(1500);
         clrscr();
