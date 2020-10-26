@@ -262,7 +262,7 @@ static void refresh_cropmarks()
         int x = RAW2BM_X(0);
         int y = RAW2BM_Y(0);
         int w = RAW2BM_DX(1032);
-        int h = RAW2BM_DY(432);
+        int h = RAW2BM_DY(424);
        
         set_movie_cropmarks(x, y, w, h);
     }
@@ -273,7 +273,7 @@ static void refresh_cropmarks()
         int x = RAW2BM_X(0);
         int y = RAW2BM_Y(0);
         int w = RAW2BM_DX(1032);
-        int h = RAW2BM_DY(562);
+        int h = RAW2BM_DY(558);
        
         set_movie_cropmarks(x, y, w, h);
     }
