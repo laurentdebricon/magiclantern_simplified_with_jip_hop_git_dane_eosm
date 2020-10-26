@@ -14,6 +14,8 @@
 #include <lens.h>
 #include <lvinfo.h>
 #include "console.h"
+#include <cropmarks.h>
+
 
 extern WEAK_FUNC(ret_0) unsigned int is_crop_hack_supported();
 extern WEAK_FUNC(ret_0) unsigned int movie_crop_hack_enable();
@@ -2470,6 +2472,13 @@ static void FAST adtg_hook(uint32_t* regs, uint32_t* stack, uint32_t pc)
 /* changing bits */
 static inline uint32_t reg_override_bits(uint32_t reg, uint32_t old_val)
 {
+    
+    //Workaround getting a clean screen while recording with no ratio. Connected with cropmarks in mlv_lite and CBR_RET_CONTINUE
+    if (RECORDING || gui_menu_shown())
+    {
+        bvramhack = 1;
+    }
+    
     static int last_hs_unpress = 0;
     
     if ((zoomaid && !RECORDING && !is_5D3 && lv && !gui_menu_shown()) &&
@@ -4520,7 +4529,7 @@ static inline uint32_t reg_override_anamorphic_eosm_frtp(uint32_t reg, uint32_t 
 {
     //x10zoom possible with SET button
     if (lv_dispsize == 10) return 0;
-        
+            
     if (ratios == 3)
     {
         
@@ -4910,12 +4919,6 @@ static inline uint32_t reg_override_center_z_eosm_1920x1280_frtp(uint32_t reg, u
 {
     //x10zoom possible with SET button
     if (lv_dispsize == 10) return 0;
-    
-    //Workaround getting a clean screen while recording with no ratio. Connected with cropmarks in mlv_lite and CBR_RET_CONTINUE
-    if ((RECORDING && !ratios) || gui_menu_shown())
-    {
-        bvramhack = 1;
-    }
     
              EngDrvOutLV(0xC0F09050, 0x3002D0);     /* Making LiveView somoother */
 
@@ -7260,15 +7263,17 @@ static unsigned int crop_rec_polling_cbr(unsigned int unused)
             PauseLiveView();
             ResumeLiveView();
         }
+        //put this bvram hack in here too as it helps when shifting between presets
+            bvramhack = 1;
     }
-    
-    if (!RECORDING && bvramhack && !ratios && CROP_PRESET_MENU == CROP_PRESET_CENTER_Z_EOSM_1920x1280_frtp && !gui_menu_shown())
+        
+    if (!RECORDING && bvramhack && !gui_menu_shown())
     {
         msleep(1500);
-        clrscr();
+        reset_movie_cropmarks();
         bvramhack = 0;
     }
-    
+        
     return CBR_RET_CONTINUE;
 }
 
