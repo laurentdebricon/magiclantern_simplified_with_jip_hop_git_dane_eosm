@@ -5188,6 +5188,8 @@ static void update_patch()
     {
         /* update preset */
         crop_preset = CROP_PRESET_MENU;
+        //Will upadate cropmarks properly when using zoomaid
+        reset_movie_cropmarks();
         
         /* install our hooks, if we haven't already do so */
         if (!patch_active)
