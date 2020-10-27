@@ -474,7 +474,7 @@ static int pres6 = 0;
 static int anacrop = 0;
 static int anacrop2 = 0;
 static int anacrop4 = 0;
-static int bvramhack = 0;
+static int bvramhack = 1;
 
 
 /* helper to allow indexing various properties of Canon's video modes */
