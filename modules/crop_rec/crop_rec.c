@@ -474,7 +474,7 @@ static int pres6 = 0;
 static int anacrop = 0;
 static int anacrop2 = 0;
 static int anacrop4 = 0;
-static int bvramhack = 1;
+static int bvramhack = 0;
 
 
 /* helper to allow indexing various properties of Canon's video modes */
@@ -6282,6 +6282,7 @@ static int crop_rec_needs_lv_refresh()
             set_lv_zoom(1);
             release = 0;
             release_b = 0;
+            reset_movie_cropmarks();
             return 0;
         }
                 
@@ -6303,6 +6304,7 @@ static int crop_rec_needs_lv_refresh()
             movie_crop_hack_disable();
             release = 0;
             release_b = 0;
+            reset_movie_cropmarks();
             return 0;
         }
         
@@ -6324,6 +6326,7 @@ static int crop_rec_needs_lv_refresh()
             movie_crop_hack_disable();
             release = 0;
             release_b = 0;
+            reset_movie_cropmarks();
             return 0;
         }
         
