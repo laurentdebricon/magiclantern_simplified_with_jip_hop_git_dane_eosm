@@ -4027,6 +4027,11 @@ static inline uint32_t reg_override_3x3_mv1080_eosm(uint32_t reg, uint32_t old_v
 
 static inline uint32_t reg_override_mcm_mv1080_eosm(uint32_t reg, uint32_t old_val)
 {
+    
+    /* gets rid of the black border to the right */
+    EngDrvOutLV(0xc0f383d4, 0x4f0010);
+    EngDrvOutLV(0xc0f383dc, 0x42401c6);
+    
     //zoom function while recording
   if (shamem_read(0xC0F14224) != 0x77F077F && RECORDING)
   {
@@ -4046,9 +4051,6 @@ static inline uint32_t reg_override_mcm_mv1080_eosm(uint32_t reg, uint32_t old_v
     }
     else
     {
-        /* gets rid of the black border to the right */
-        EngDrvOutLV(0xc0f383d4, 0x4f0010);
-        EngDrvOutLV(0xc0f383dc, 0x42401c6);
         EngDrvOutLV(0xc0f11ACC, 0x650079);
         EngDrvOutLV(0xc0f11A88, 0x0);
         EngDrvOutLV(0xc0f11A8C, 0x24002b);
