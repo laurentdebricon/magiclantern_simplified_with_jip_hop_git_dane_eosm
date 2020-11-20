@@ -4028,6 +4028,9 @@ static inline uint32_t reg_override_3x3_mv1080_eosm(uint32_t reg, uint32_t old_v
 static inline uint32_t reg_override_mcm_mv1080_eosm(uint32_t reg, uint32_t old_val)
 {
     //zoom function while recording
+  if (shamem_read(0xC0F14224) != 0x77F077F && RECORDING)
+  {
+      
     if (get_halfshutter_pressed())
     {
         EngDrvOutLV(0xc0f383d4, 0x4f001e);
@@ -4055,6 +4058,8 @@ static inline uint32_t reg_override_mcm_mv1080_eosm(uint32_t reg, uint32_t old_v
         EngDrvOutLV(0xC0F42014, 0x3d401b5);
         //EngDrvOutLV(0xC0F38070, 0x3d401b5);
     }
+      
+  }
     
     if (ratios == 0x0 && x3crop == 0x0)
     {
@@ -4168,6 +4173,9 @@ static inline uint32_t reg_override_3x3_48fps_eosm(uint32_t reg, uint32_t old_va
     if (gui_menu_shown() && !RECORDING) *(volatile uint32_t*)0xC0F06014 = 0x643;
     
     // zoom function while recording
+if (shamem_read(0xC0F14224) != 0x77F077F && RECORDING)
+{
+        
     if (get_halfshutter_pressed())
     {
         EngDrvOutLV(0xc0f11ACC, 0x40004);
@@ -4188,6 +4196,8 @@ static inline uint32_t reg_override_3x3_48fps_eosm(uint32_t reg, uint32_t old_va
         EngDrvOutLV(0xC0F42014, 0x2ba01b5);
        //EngDrvOutLV(0xC0F38070, 0x2ba01b5);
     }
+    
+}
     
     
     /* compensates for black level issues with analog gain. Used for both 10 and 12 bit */
