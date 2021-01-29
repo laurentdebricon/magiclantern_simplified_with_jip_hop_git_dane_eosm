@@ -21,6 +21,7 @@ extern WEAK_FUNC(ret_0) unsigned int is_crop_hack_supported();
 extern WEAK_FUNC(ret_0) unsigned int movie_crop_hack_enable();
 extern WEAK_FUNC(ret_0) unsigned int movie_crop_hack_disable();
 extern WEAK_FUNC(ret_0) void aperture_toggle(void* priv, int sign);
+extern WEAK_FUNC(ret_0) void shutter_toggle(void* priv, int sign);
 
 #undef CROP_DEBUG
 
@@ -54,6 +55,7 @@ static CONFIG_INT("crop.set_25fps", set_25fps, 0);
 static CONFIG_INT("crop.framestop", framestop, 0);
 static CONFIG_INT("crop.frameburst", frameburst, 0);
 static CONFIG_INT("crop.isoaverage", isoaverage, 0);
+static CONFIG_INT("crop.shutteraverage", shutteraverage, 0);
 static CONFIG_INT("crop.HDR_iso_a", HDR_iso_a, 0);
 static CONFIG_INT("crop.HDR_iso_b", HDR_iso_b, 0);
 static CONFIG_INT("crop.isoauto", isoauto, 0);
@@ -475,6 +477,7 @@ static int anacrop = 0;
 static int anacrop2 = 0;
 static int anacrop4 = 0;
 static int bvramhack = 0;
+static int start = 0;
 
 /* helper to allow indexing various properties of Canon's video modes */
 static inline int get_video_mode_index()
@@ -5310,6 +5313,13 @@ static struct menu_entry crop_rec_menu[] =
                 .help   =  "3 isos 100,400,1600 or iso 200,800,1600 limit recording with frame burst",
             },
             {
+                .name   = "shutter average",
+                .priv   = &shutteraverage,
+                .max    = 3,
+                .choices = CHOICES("OFF", "2EV steps", "3EV steps", "5EV steps"),
+                .help   =  "Start off bright, record at least 21 frames, shutter steps only every 7th frame",
+            },
+            {
                 .name   = "max iso",
                 .priv   = &isoauto,
                 .max    = 3,
@@ -5728,8 +5738,43 @@ static unsigned int crop_rec_keypress_cbr(unsigned int key)
         return 0;
     }
     */
-       
-
+  
+if (shutteraverage)
+{
+    //workaround to activate shutter iteration. Not working per frame basis. More like every 7th frames before changing. Breaks if put as a function in other places.
+    if (key == MODULE_KEY_REC && !RECORDING)
+    {
+        start = 1;
+    }
+    
+    if (key == MODULE_KEY_REC && RECORDING)
+    {
+        start = 0;
+    }
+    
+    //if recording stops early without pushing rec button. Race condition.
+    if(!RECORDING && movcount++ >= 12)
+    {
+        start = 0;
+    }
+    else if (start)
+    {
+        movcount++;
+    }
+    
+    
+    if (start)
+    {
+        //if (shutteraverage == 1) shutter_toggle(0, 1); Not working more than a few steps, not sure why
+        if (shutteraverage == 1) shutter_toggle(0, 2);
+        if (shutteraverage == 2) shutter_toggle(0, 3);
+        if (shutteraverage == 3) shutter_toggle(0, 5);
+    }
+    
+    // lens_info.raw_shutter for reading shutter
+    // lens_set_rawshutter(0x65); 1/50 shutter
+}
+           
 //Need to separate zoom function and put it in crop_rec_keypress_cbr to fix corruption
 if (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 && RECORDING)
 {
@@ -6510,6 +6555,7 @@ static int crop_rec_needs_lv_refresh()
             framestop = 0;
             frameburst = 0;
             isoaverage = 0;
+            shutteraverage = 0;
             HDR_iso_a = 0;
             HDR_iso_b = 0;
             gremag = 1;
@@ -7873,6 +7919,7 @@ MODULE_CONFIG(set_25fps)
 MODULE_CONFIG(framestop)
 MODULE_CONFIG(frameburst)
 MODULE_CONFIG(isoaverage)
+MODULE_CONFIG(shutteraverage)
 MODULE_CONFIG(HDR_iso_a)
 MODULE_CONFIG(HDR_iso_b)
 MODULE_CONFIG(isoauto)
