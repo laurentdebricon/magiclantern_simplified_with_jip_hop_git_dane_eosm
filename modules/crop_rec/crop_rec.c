@@ -5317,7 +5317,8 @@ static struct menu_entry crop_rec_menu[] =
                 .priv   = &shutteraverage,
                 .max    = 3,
                 .choices = CHOICES("OFF", "2EV steps", "3EV steps", "5EV steps"),
-                .help   =  "Start off bright, record at least 21 frames, shutter steps only every 7th frame",
+                .help   =  "Start bright, record at least 21 frames",
+                .help2  = "delimit with frame burst\n"
             },
             {
                 .name   = "max iso",
