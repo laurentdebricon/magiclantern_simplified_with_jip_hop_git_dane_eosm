@@ -1506,7 +1506,8 @@ static void FAST cmos_hook(uint32_t* regs, uint32_t* stack, uint32_t pc)
                 cmos_new[5] = 0x20;
                 // save it for x10zoom if (ratios) cmos_new[7] = 0xf27;
                 if (!ratios && !set_25fps) cmos_new[7] = 0x1;
-                if (!ratios && set_25fps) cmos_new[7] = 0x2a0;
+                if (!ratios && set_25fps) cmos_new[7] = 0x303;
+                if (!ratios && set_25fps && lv_dispsize == 10) cmos_new[7] = 0x2a0;
                 if (ratios == 1 || ratios == 2) cmos_new[7] = 0x6;
                 if (ratios == 3) cmos_new[7] = 0xf20;
                 if (set_25fps && (ratios == 1 || ratios == 2)) cmos_new[7] = 0x808;
