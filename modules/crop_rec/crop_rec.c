@@ -974,6 +974,11 @@ static inline void FAST calc_skip_offsets(int * p_skip_left, int * p_skip_right,
         case CROP_PRESET_anamorphic_rewired_flv_EOSM:
             /* see autodetect_black_level exception in raw.c */
                 skip_right      = 58;
+            if (!ratios && set_25fps)
+            {
+                skip_left       = 372;
+                skip_right      = 358;
+            }
                 break;
             
         case CROP_PRESET_anamorphic_rewired_100D:
@@ -1500,7 +1505,8 @@ static void FAST cmos_hook(uint32_t* regs, uint32_t* stack, uint32_t pc)
             case CROP_PRESET_anamorphic_rewired_flv_EOSM:
                 cmos_new[5] = 0x20;
                 // save it for x10zoom if (ratios) cmos_new[7] = 0xf27;
-                if (!ratios) cmos_new[7] = 0x1;
+                if (!ratios && !set_25fps) cmos_new[7] = 0x1;
+                if (!ratios && set_25fps) cmos_new[7] = 0x2a0;
                 if (ratios == 1 || ratios == 2) cmos_new[7] = 0x6;
                 if (ratios == 3) cmos_new[7] = 0xf20;
                 if (set_25fps && (ratios == 1 || ratios == 2)) cmos_new[7] = 0x808;
@@ -4453,7 +4459,7 @@ static inline uint32_t reg_override_anamorphic_rewired_flv_eosm(uint32_t reg, ui
         EngDrvOutLV(0xc0f383dc, 0x42401c6 + reg_83dc);
     }
         
-    if (!ratios)
+    if (!ratios && !set_25fps)
     {
         /* full readout */
         switch (reg)
@@ -4466,6 +4472,27 @@ static inline uint32_t reg_override_anamorphic_rewired_flv_eosm(uint32_t reg, ui
             case 0xC0F06010: return 0x255 + reg_6008;
                 
             case 0xC0F0713c: return 0xcd7 + reg_713c;
+                
+                /* dummy reg for height modes eosm in raw.c */
+            case 0xC0f0b13c: return 0x11;
+        }
+    }
+    
+    //silent film modes 16:9 16fps
+    if (!ratios && set_25fps)
+    {
+        /* full readout */
+        switch (reg)
+        {
+            case 0xC0F06804: return 0x90701e4 + reg_6804_width + (reg_6804_height << 16);
+                
+                //dualiso, static lines, but how often will dualiso be used? case 0xC0F06014: return 0xbcf + reg_6014;
+            case 0xC0F06014: return 0xa2e + reg_6014;
+            case 0xC0F0600c: return 0x1ff01ff + reg_6008 + (reg_6008 << 16);
+            case 0xC0F06008: return 0x1ff01ff + reg_6008 + (reg_6008 << 16);
+            case 0xC0F06010: return 0x1ff + reg_6008;
+                                                
+            case 0xC0F0713c: return 0x907 + reg_713c;
                 
                 /* dummy reg for height modes eosm in raw.c */
             case 0xC0f0b13c: return 0x11;
