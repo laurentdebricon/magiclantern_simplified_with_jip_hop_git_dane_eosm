@@ -138,6 +138,8 @@ static CONFIG_INT("raw.preview", preview_mode, 1);
 static CONFIG_INT("raw.warm.up", warm_up, 0);
 static CONFIG_INT("raw.use.srm.memory", use_srm_memory, 1);
 static CONFIG_INT("raw.small.hacks", small_hacks, 1);
+static CONFIG_INT("raw.more.hacks", more_hacks, 1);
+/* static CONFIG_INT("raw.one.more.hack", one_more_hack, 0); */
 
 /* Recording Status Indicator Options */
 #define INDICATOR_OFF        0
@@ -1326,7 +1328,52 @@ static void hack_liveview(int unhack)
     }
 }
 
+<<<<<<< HEAD
 static int FAST choose_next_capture_slot()
+=======
+
+static REQUIRES(RawRecTask)
+void hack_liveview_more()
+{
+    if (more_hacks && shamem_read(0xc0f383d4) != 0x4f0010) /* excludes mcm mode on eosm */
+	{
+		void (*aewbSuspend)() = 
+		cam_eos_m ? 0xff2606f4 :
+		cam_5d3_113 ? 0xff23bc60 :
+		cam_5d3_123 ? 0xff23ff10 :
+		0;
+		
+		void (*lvfaceEnd)() = 
+		cam_eos_m ? 0xff177ff8 :
+		cam_5d3_113 ? 0xff16d77c :
+		cam_5d3_123 ? 0xff16e318 :
+		0;
+		
+		lvfaceEnd();
+		
+		if (more_hacks == 2)
+		{
+			aewbSuspend();
+		}
+	}
+	
+/* Causes freeze on eosm
+	if (one_more_hack)
+	{
+		void (*CartridgeCancel)() = 
+		cam_eos_m ? 0xffa7e7d8 :
+		cam_5d3_113 ? 0xff17fd68 :
+		cam_5d3_123 ? 0xff181340 :
+		0;
+		CartridgeCancel();
+		msleep(10); 
+	}
+*/
+}
+
+static REQUIRES(LiveViewTask) FAST
+int choose_next_capture_slot()
+>>>>>>> 81107a25c (mlv_lite.c(liveview hacks))
 {
     /* keep on rolling? */
     /* O(1) */
@@ -1894,6 +1941,13 @@ static void raw_video_rec_task()
         NotifyBox(5000, "Card Full");
         goto cleanup;
     }
+<<<<<<< HEAD
+=======
+    
+    hack_liveview(0);
+    liveview_hacked = 1;
+    hack_liveview_more();
+>>>>>>> 81107a25c (mlv_lite.c(liveview hacks))
 
     /* allocate memory */
     if (!setup_buffers())
@@ -2297,6 +2351,25 @@ static struct menu_entry raw_video_menu[] =
                 .help  = "Slow down Canon GUI, disable auto exposure, white balance...",
                 .advanced = 1,
             },
+	    {
+                .name = "More hacks",
+                .priv = &more_hacks,
+		.choices = CHOICES("OFF", "lvface", "lvface + aewb"),
+                .max = 2,
+                .help  = "Disable lvface and aewb.",
+		.help2 = "aewb: white balance and exposure will be locked during recording!.",
+                .advanced = 1,
+            },
+/*
+	    {
+                .name = "One more hack",
+                .priv = &one_more_hack,
+		.choices = CHOICES("OFF", "ON"),
+                .max = 1,
+                .help  = "CartridgeCancel.",
+                .advanced = 1,
+            },
+*/
             {
                 .name = "Show buffer graph",
                 .priv = &show_graph,
@@ -2706,5 +2779,7 @@ MODULE_CONFIGS_START()
     MODULE_CONFIG(preview_mode)
     MODULE_CONFIG(use_srm_memory)
     MODULE_CONFIG(small_hacks)
+    MODULE_CONFIG(more_hacks)
+/*    MODULE_CONFIG(one_more_hack)*/
     MODULE_CONFIG(warm_up)
 MODULE_CONFIGS_END()
