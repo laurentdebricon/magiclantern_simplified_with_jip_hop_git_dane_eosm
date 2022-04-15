@@ -2357,7 +2357,7 @@ static struct menu_entry raw_video_menu[] =
 		.choices = CHOICES("OFF", "lvface", "lvface + aewb"),
                 .max = 2,
                 .help  = "Disable lvface and aewb.",
-		.help2 = "aewb: white balance and exposure will be locked during recording!.",
+		.help2 = "aewb: locks wb and shutter! Disables shutter fine-tuning!",
                 .advanced = 1,
             },
 /*

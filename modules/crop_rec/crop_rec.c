@@ -2481,6 +2481,15 @@ static void FAST adtg_hook(uint32_t* regs, uint32_t* stack, uint32_t pc)
 /* changing bits */
 static inline uint32_t reg_override_bits(uint32_t reg, uint32_t old_val)
 {
+
+
+	/*when enabling hdmi port turn off following*/
+	if (shamem_read(0xC0F14224) == 0x77F077F)
+	{
+		zoomaid = 0;
+		x3toggle = 0;
+	}
+
     
     //Workaround getting a clean screen while recording with no ratio. Connected with cropmarks in mlv_lite and CBR_RET_CONTINUE
     if (RECORDING || gui_menu_shown())
