@@ -819,6 +819,13 @@ static void mlv_play_osd_task(void *priv)
                 case MLV_PLAY_MENU_SHOWN:
                 case MLV_PLAY_MENU_FADEIN:
                 {
+
+	/*Will exit mlv_play cleaner than using halfshutter button*/ 
+                 if(key == MODULE_KEY_MENU)
+                 {
+	            mlv_play_render_abort = 1;
+                 }
+
                     if(key == MODULE_KEY_Q || key == MODULE_KEY_PICSTYLE)
                     {
                         if (!mlv_play_osd_force_redraw)
@@ -847,6 +854,14 @@ static void mlv_play_osd_task(void *priv)
                 case MLV_PLAY_MENU_IDLE:
                 case MLV_PLAY_MENU_HIDDEN:
                 {
+
+	/*Will exit mlv_play cleaner than using halfshutter button*/ 
+                 if(key == MODULE_KEY_MENU)
+                 {
+	            mlv_play_render_abort = 1;
+                 }
+
+
                     if(!mlv_play_zoom)
                     {
                         if (key == MODULE_KEY_PRESS_SET || key == MODULE_KEY_Q || key == MODULE_KEY_PICSTYLE)
