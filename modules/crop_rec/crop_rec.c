@@ -5836,7 +5836,7 @@ if (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 &&
             {
                 
                         zoom = 1;
-                key = MODULE_KEY_UNPRESS_SET;
+                        key = MODULE_KEY_UNPRESS_SET;
                 
                         EngDrvOutLV(0xC0F04210, 0x18A05A0);
                         EngDrvOutLV(0xc0f11ACC, 0x4E0088);
@@ -5895,9 +5895,13 @@ if (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 &&
             //zoom function while recording. Regs from theBilalFakhouri
             if (key == MODULE_KEY_PRESS_SET && !zoom && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
             {
-                EngDrvOutLV(0xC0F04210, 0x12E05A0);
-                EngDrvOutLV(0xc0f11ACC, 0x8E0143);
-                EngDrvOutLV(0xc0f11A8C, 0x1E0025);
+                
+                    zoom = 1;
+                    key = MODULE_KEY_UNPRESS_SET;
+                
+                    EngDrvOutLV(0xC0F04210, 0x12E05A0);
+                    EngDrvOutLV(0xc0f11ACC, 0x8E0143);
+                    EngDrvOutLV(0xc0f11A8C, 0x1E0025);
                 
                     EngDrvOutLV(0xc0f11B9C, 0x2AF0407);
                     EngDrvOutLV(0xc0f1A00C, 0x2AF0407);
@@ -5947,6 +5951,10 @@ if (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 &&
         //zoom function while recording. Regs from theBilalFakhouri
         if (key == MODULE_KEY_PRESS_SET && !zoom && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
         {
+            
+                    zoom = 1;
+                    key = MODULE_KEY_UNPRESS_SET;
+            
                     EngDrvOutLV(0xC0F04210, 0x15505A0);
                     EngDrvOutLV(0xc0f11ACC, 0x8E011E);
                     EngDrvOutLV(0xc0f11A88, 0x1);
