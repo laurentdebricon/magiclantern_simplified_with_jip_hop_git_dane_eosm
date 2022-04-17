@@ -478,6 +478,7 @@ static int anacrop2 = 0;
 static int anacrop4 = 0;
 static int bvramhack = 0;
 static int start = 0;
+static int zoom = 0;
 
 /* helper to allow indexing various properties of Canon's video modes */
 static inline int get_video_mode_index()
@@ -4626,11 +4627,14 @@ if (!ratios)
             case 0xC0f0b13c: return 0x11;
     }
     
+    //disable zoom function while not recording
+    if (!RECORDING) zoom = 0;
+    
     //Need to separate zoom function and put it in crop_rec_keypress_cbr to fix corruption
     if (ratios == 3)
     {
         
-        if (!get_halfshutter_pressed() || shamem_read(0xC0F14224) == 0x77F077F)
+        if (!zoom || shamem_read(0xC0F14224) == 0x77F077F)
         {
             
             if (shamem_read(0xC0F14224) == 0x77F077F)
@@ -4689,7 +4693,7 @@ if (!ratios)
     
     if (ratios == 1 || ratios == 2)
     {
-        if (!get_halfshutter_pressed() || shamem_read(0xC0F14224) == 0x77F077F)
+        if (!zoom || shamem_read(0xC0F14224) == 0x77F077F)
         {
             
             if (shamem_read(0xC0F14224) == 0x77F077F)
@@ -4750,7 +4754,7 @@ if (!ratios)
     
     if (!ratios)
     {
-        if (!get_halfshutter_pressed() || shamem_read(0xC0F14224) == 0x77F077F)
+        if (!zoom || shamem_read(0xC0F14224) == 0x77F077F)
         {
                     if (shamem_read(0xC0F14224) == 0x77F077F)
                     {
@@ -5816,13 +5820,24 @@ if (shutteraverage)
 //Need to separate zoom function and put it in crop_rec_keypress_cbr to fix corruption
 if (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 && RECORDING)
 {
-            
+ 
+    //Use SET button instead of halfshutter to zoom
+    if (key == MODULE_KEY_PRESS_SET && zoom)
+    {
+        zoom = 0;
+        key = MODULE_KEY_UNPRESS_SET;
+    }
+                
         if (ratios == 3)
         {
                         
             //zoom function while recording. Regs from theBilalFakhouri
-            if (get_halfshutter_pressed() && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
+            if (key == MODULE_KEY_PRESS_SET && !zoom && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
             {
+                
+                        zoom = 1;
+                key = MODULE_KEY_UNPRESS_SET;
+                
                         EngDrvOutLV(0xC0F04210, 0x18A05A0);
                         EngDrvOutLV(0xc0f11ACC, 0x4E0088);
                         EngDrvOutLV(0xc0f11A88, 0x1);
@@ -5878,7 +5893,7 @@ if (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 &&
     {
        
             //zoom function while recording. Regs from theBilalFakhouri
-            if (get_halfshutter_pressed() && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
+            if (key == MODULE_KEY_PRESS_SET && !zoom && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
             {
                 EngDrvOutLV(0xC0F04210, 0x12E05A0);
                 EngDrvOutLV(0xc0f11ACC, 0x8E0143);
@@ -5930,7 +5945,7 @@ if (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 &&
     {
         
         //zoom function while recording. Regs from theBilalFakhouri
-        if (get_halfshutter_pressed() && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
+        if (key == MODULE_KEY_PRESS_SET && !zoom && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
         {
                     EngDrvOutLV(0xC0F04210, 0x15505A0);
                     EngDrvOutLV(0xc0f11ACC, 0x8E011E);
