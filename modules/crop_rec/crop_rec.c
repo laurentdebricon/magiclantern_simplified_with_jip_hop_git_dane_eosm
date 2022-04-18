@@ -4627,8 +4627,8 @@ if (!ratios)
             case 0xC0f0b13c: return 0x11;
     }
     
-    //disable zoom function while not recording
-    if (!RECORDING) zoom = 0;
+    //disable zoom function while not recording and using tap display
+    if (gui_menu_shown()) zoom = 0;
     
     //Need to separate zoom function and put it in crop_rec_keypress_cbr to fix corruption
     if (ratios == 3)
@@ -5816,13 +5816,21 @@ if (shutteraverage)
     // lens_info.raw_shutter for reading shutter
     // lens_set_rawshutter(0x65); 1/50 shutter
 }
-           
+    
+    
+    //Reset zoom when stopping recording
+    if (key == MODULE_KEY_REC && RECORDING && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp)
+    {
+        zoom = 0;
+    }
+    
+               
 //Need to separate zoom function and put it in crop_rec_keypress_cbr to fix corruption
-if (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 && RECORDING)
+if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 && !gui_menu_shown() && lv)
 {
- 
+    
     //Use SET button instead of halfshutter to zoom
-    if ((key == MODULE_KEY_PRESS_SET || key == MODULE_KEY_TOUCH_1_FINGER) && zoom)
+    if (key == MODULE_KEY_PRESS_SET && zoom)
     {
         zoom = 0;
         key = MODULE_KEY_UNPRESS_SET;
@@ -5832,7 +5840,7 @@ if (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 &&
         {
                         
             //zoom function while recording. Regs from theBilalFakhouri
-            if ((key == MODULE_KEY_PRESS_SET || key == MODULE_KEY_TOUCH_1_FINGER) && !zoom && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
+            if (key == MODULE_KEY_PRESS_SET && !zoom && shamem_read(0xC0F14224) != 0x77F077F)
             {
                 
                         zoom = 1;
@@ -5893,7 +5901,7 @@ if (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 &&
     {
        
             //zoom function while recording. Regs from theBilalFakhouri
-            if ((key == MODULE_KEY_PRESS_SET || key == MODULE_KEY_TOUCH_1_FINGER) && !zoom && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
+            if (key == MODULE_KEY_PRESS_SET && !zoom && shamem_read(0xC0F14224) != 0x77F077F)
             {
                 
                     zoom = 1;
@@ -5949,7 +5957,7 @@ if (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 &&
     {
         
         //zoom function while recording. Regs from theBilalFakhouri
-        if ((key == MODULE_KEY_PRESS_SET || key == MODULE_KEY_TOUCH_1_FINGER) && !zoom && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
+        if (key == MODULE_KEY_PRESS_SET && !zoom && shamem_read(0xC0F14224) != 0x77F077F)
         {
             
                     zoom = 1;
@@ -6134,7 +6142,7 @@ if (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 &&
         ((key == MODULE_KEY_PRESS_DOWN && x3toggle == 0x1) || (key == MODULE_KEY_PRESS_SET && x3toggle == 0x2)) &&
         (CROP_PRESET_MENU == CROP_PRESET_3x3_mv1080_EOSM || CROP_PRESET_MENU == CROP_PRESET_mcm_mv1080_EOSM ||
          CROP_PRESET_MENU == CROP_PRESET_3x3_mv1080_48fps_EOSM || CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_EOSM ||
-         CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_flv_EOSM || CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp))
+         CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_flv_EOSM))
     {
         if (x3crop == 0x1)
         {
@@ -6164,7 +6172,7 @@ if (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 &&
         {
             x3crop = 0x1;
             //allow for x3crop when using anamorphic mode
-            if (CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_EOSM || CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_flv_EOSM || CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp)
+            if (CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_EOSM || CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_flv_EOSM)
             {
                 if (CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_EOSM) anacrop = 1;
                 if (CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_flv_EOSM) anacrop2 = 1;
