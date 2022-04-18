@@ -5822,7 +5822,7 @@ if (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 &&
 {
  
     //Use SET button instead of halfshutter to zoom
-    if (key == MODULE_KEY_PRESS_SET && zoom)
+    if ((key == MODULE_KEY_PRESS_SET || key == MODULE_KEY_TOUCH_1_FINGER) && zoom)
     {
         zoom = 0;
         key = MODULE_KEY_UNPRESS_SET;
@@ -5832,7 +5832,7 @@ if (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 &&
         {
                         
             //zoom function while recording. Regs from theBilalFakhouri
-            if (key == MODULE_KEY_PRESS_SET && !zoom && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
+            if ((key == MODULE_KEY_PRESS_SET || key == MODULE_KEY_TOUCH_1_FINGER) && !zoom && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
             {
                 
                         zoom = 1;
@@ -5893,7 +5893,7 @@ if (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 &&
     {
        
             //zoom function while recording. Regs from theBilalFakhouri
-            if (key == MODULE_KEY_PRESS_SET && !zoom && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
+            if ((key == MODULE_KEY_PRESS_SET || key == MODULE_KEY_TOUCH_1_FINGER) && !zoom && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
             {
                 
                     zoom = 1;
@@ -5949,7 +5949,7 @@ if (CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 &&
     {
         
         //zoom function while recording. Regs from theBilalFakhouri
-        if (key == MODULE_KEY_PRESS_SET && !zoom && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
+        if ((key == MODULE_KEY_PRESS_SET || key == MODULE_KEY_TOUCH_1_FINGER) && !zoom && RECORDING && shamem_read(0xC0F14224) != 0x77F077F)
         {
             
                     zoom = 1;
