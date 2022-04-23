@@ -4580,7 +4580,7 @@ static inline uint32_t reg_override_anamorphic_rewired_flv_eosm(uint32_t reg, ui
 static inline uint32_t reg_override_anamorphic_eosm_frtp(uint32_t reg, uint32_t old_val)
 {
     //x10zoom possible with SET button
-    if (lv_dispsize == 10) return 0;
+    //if (lv_dispsize == 10) return 0;
             
 if (ratios == 3)
 {
@@ -4629,6 +4629,7 @@ if (!ratios)
     
     //disable zoom function while not recording and using tap display
     if (gui_menu_shown()) zoom = 0;
+    if (lv_dispsize == 10) zoom = 0;
     
     //Need to separate zoom function and put it in crop_rec_keypress_cbr to fix corruption
     if (ratios == 3)
