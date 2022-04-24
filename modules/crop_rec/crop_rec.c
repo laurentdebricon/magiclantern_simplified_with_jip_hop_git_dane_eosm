@@ -467,12 +467,6 @@ static int row6 = 0;
 static int isohigh = 0;
 static int movcount = 0;
 static int gremag = 0;
-static int pres1 = 0;
-static int pres2 = 0;
-static int pres3 = 0;
-static int pres4 = 0;
-static int pres5 = 0;
-static int pres6 = 0;
 static int anacrop = 0;
 static int anacrop2 = 0;
 static int anacrop4 = 0;
@@ -5220,10 +5214,13 @@ static struct menu_entry custom_buttons_menu[] =
             {
                 .name   = "INFO selectable",
                 .priv   = &previews,
-                .max    = 2,
-                .choices = CHOICES("OFF", "INFO1", "INFO2"),
-                .help   = "INFO1 = INFO will toggle between Real-time/framing",
-                .help2  = "INFO2 = INFO start rec anamorphic MAX and stop rec to preset\n"
+                .max    = 3,
+                .choices = CHOICES("OFF", "INFO1", "INFO2", "INFO3"),
+                .help   = "INFO button shortcuts",
+                .help2  = "passthrough\n"
+			  "INFO1 = INFO will toggle between Real-time/framing\n"
+			  "INFO3 = toggle raw Zebras ON or OFF\n"
+			  "INFO4 = toggle False colors ON or OFF\n"
             },
             MENU_EOL,
         },
@@ -6039,63 +6036,56 @@ if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EO
         }
         return 0;
     }
+
     
+    //toggle between Zebras ON or OFF
     if (lv_dispsize != 10 && lv && is_movie_mode() && !gui_menu_shown() && key == MODULE_KEY_INFO && previews == 0x2)
     {
         if(lv_disp_mode != 0){
             // Use INFO key to cycle LV as normal when not in the LV with ML overlays
             return 1;
         }
-        
-        if (RECORDING)
+
+	//turn off False color here
+	menu_set_str_value_from_script("Overlay", "False color", "OFF", 1);        
+        if (prevmode)
         {
-            if (pres1) crop_preset_index = 0;
-            if (pres2) crop_preset_index = 6;
-            if (pres3) crop_preset_index = 3;
-            if (pres4) crop_preset_index = 1;
-            if (pres5) crop_preset_index = 0;
-            if (pres6) crop_preset_index = 1;
-            presets = 0;
-            module_send_keypress(MODULE_KEY_REC);
-            if (pres1) bitdepth = 0x0;
-            if (pres2) bitdepth = 0x1;
-            if (pres3) bitdepth = 0x1;
-            if (pres4) bitdepth = 0x1;
-            if (pres5) bitdepth = 0x0;
-            if (pres6) bitdepth = 0x1;
-            pres1 = 0;
-            pres2 = 0;
-            pres3 = 0;
-            pres4 = 0;
-            pres5 = 0;
-            pres6 = 0;
+            prevmode = 0;
+            menu_set_str_value_from_script("Overlay", "Zebras", "OFF", 1);
         }
-        if (!RECORDING)
+        else
         {
-            if (crop_preset_index == 0x7)
-            {
-                NotifyBox(1000, "Only works with RAW");
-                return 0;
-            }
-            if (crop_preset_index == 0x0) pres1 = 1;
-            if (crop_preset_index == 0x6) pres2 = 1;
-            if (crop_preset_index == 0x3) pres3 = 1;
-            if (crop_preset_index == 0x1) pres4 = 1;
-            if (crop_preset_index == 0x0) pres5 = 1;
-            if (crop_preset_index == 0x1) pres6 = 1;
-            menu_set_str_value_from_script("raw video", "Crop rec preview", "ON", 1);
-            msleep(200);
-            crop_preset_index = 6;
-            presets = 8;
-            bitdepth = 0x2;
-            PauseLiveView();
-            ResumeLiveView();
-            msleep(1300);
-            NotifyBox(1000, "Push INFO again to stop recording");
-            module_send_keypress(MODULE_KEY_REC);
+            prevmode = 1;
+            menu_set_str_value_from_script("Overlay", "Zebras", "ON", 1);
         }
         return 0;
     }
+
+    //toggle between False colors ON or OFF
+    if (lv_dispsize != 10 && lv && is_movie_mode() && !gui_menu_shown() && key == MODULE_KEY_INFO && previews == 0x3)
+    {
+        if(lv_disp_mode != 0){
+            // Use INFO key to cycle LV as normal when not in the LV with ML overlays
+            return 1;
+        }
+        
+        if (prevmode)
+        {
+            prevmode = 0;
+            menu_set_str_value_from_script("Overlay", "False color", "OFF", 1);
+	    gui_open_menu();
+	    msleep(200);
+            module_send_keypress(MODULE_KEY_MENU);
+	    msleep(200);
+        }
+        else
+        {
+            prevmode = 1;
+            menu_set_str_value_from_script("Overlay", "False color", "ON", 1);
+        }
+        return 0;
+    }
+
     
     
     /* photo mode */
@@ -6235,7 +6225,7 @@ if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EO
     }
     
     //rewire MENU key when INFO is remapped, first enter INFO, push MENU again and it enters canon menu as supposed to
-    if (key == MODULE_KEY_MENU && lv && !gui_menu_shown() && is_movie_mode() && (gain_buttons == 4 || dropdown == 2 || previews == 1 || previews == 2))
+    if (key == MODULE_KEY_MENU && lv && !gui_menu_shown() && is_movie_mode() && (gain_buttons == 4 || dropdown == 2 || previews))
     {
         // good place to close console
         console_hide();
@@ -6250,6 +6240,7 @@ if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EO
             if (iso_climb == 0x5 && lens_info.raw_iso != 0x68) menu_set_str_value_from_script("Expo", "ISO", "1600", 1);
             if (iso_climb == 0x6 && lens_info.raw_iso != 0x70) menu_set_str_value_from_script("Expo", "ISO", "3200", 1);
         }
+
         return 0;
     }
     
@@ -6641,6 +6632,8 @@ static int crop_rec_needs_lv_refresh()
             menu_set_str_value_from_script("raw video", "Aspect ratio", "1:2", 17);
             menu_set_str_value_from_script("sound recording", "Enable sound", "ON", 1);
             menu_set_str_value_from_script("Display", "Kill Canon GUI", "OFF", 1);
+	    menu_set_str_value_from_script("Overlay", "Zebras", "OFF", 1);
+	    menu_set_str_value_from_script("Overlay", "False color", "OFF", 1);
             msleep(200);
             set_lv_zoom(1);
             PauseLiveView();
