@@ -6662,7 +6662,7 @@ static int crop_rec_needs_lv_refresh()
             shutter_range = 0;
             previews = 2;
             tapdisp = 1;
-            tapdisp = 1;
+            set = 0;
             isoauto = 0;
             ratios = 3;
             set_25fps = 0;
@@ -6684,8 +6684,8 @@ static int crop_rec_needs_lv_refresh()
             menu_set_str_value_from_script("raw video", "Aspect ratio", "1:2", 17);
             menu_set_str_value_from_script("sound recording", "Enable sound", "ON", 1);
             menu_set_str_value_from_script("Display", "Kill Canon GUI", "OFF", 1);
-	    menu_set_str_value_from_script("Overlay", "Zebras", "OFF", 1);
-	    menu_set_str_value_from_script("Overlay", "False color", "OFF", 1);
+            menu_set_str_value_from_script("Overlay", "Zebras", "OFF", 1);
+            menu_set_str_value_from_script("Overlay", "False color", "OFF", 1);
             menu_set_str_value_from_script("Overlay", "Focus Peak", "OFF", 1);
             msleep(200);
             set_lv_zoom(1);
