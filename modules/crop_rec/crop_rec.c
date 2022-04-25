@@ -5845,7 +5845,7 @@ if (shutteraverage)
 
 
 //Need to separate zoom function and put it in crop_rec_keypress_cbr to fix corruption
-if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 && !gui_menu_shown() && lv && shamem_read(0xC0F14224) != 0x77F077F && gain_buttons != 5)
+if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 && !gui_menu_shown() && lv && shamem_read(0xC0F14224) != 0x77F077F && gain_buttons != 5 && !set)
 {
 
     //Use SET button instead of halfshutter to zoom
@@ -6662,6 +6662,7 @@ static int crop_rec_needs_lv_refresh()
             shutter_range = 0;
             previews = 2;
             tapdisp = 1;
+            set = 0;
             isoauto = 0;
             ratios = 1;
             set_25fps = 0;
