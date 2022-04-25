@@ -6662,9 +6662,9 @@ static int crop_rec_needs_lv_refresh()
             shutter_range = 0;
             previews = 2;
             tapdisp = 1;
-            set = 0;
+            tapdisp = 1;
             isoauto = 0;
-            ratios = 1;
+            ratios = 3;
             set_25fps = 0;
             framestop = 0;
             frameburst = 0;
