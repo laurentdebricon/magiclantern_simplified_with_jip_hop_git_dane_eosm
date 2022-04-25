@@ -45,7 +45,7 @@ int dual_iso_is_enabled();
 
 static CONFIG_INT("crop.preset", crop_preset_index, 0);
 static CONFIG_INT("crop.shutter_range", shutter_range, 0);
-static CONFIG_INT("crop.ratios", ratios, 1);
+static CONFIG_INT("crop.ratios", ratios, 3);
 static CONFIG_INT("crop.x3crop", x3crop, 0);
 static CONFIG_INT("crop.flvtl", flvtl, 0);
 static CONFIG_INT("crop.flvtl4k", flvtl4k, 0);
@@ -64,6 +64,7 @@ static CONFIG_INT("crop.iso_climb", iso_climb, 1);
 static CONFIG_INT("crop.presets", presets, 0);
 static CONFIG_INT("crop.previews", previews, 2);
 static CONFIG_INT("crop.tapdisp", tapdisp, 1);
+static CONFIG_INT("crop.set", set, 0);
 
 CONFIG_INT("crop.bitdepth", bitdepth, 0);
 #define OUTPUT_10BIT (bitdepth == 1)
@@ -1604,11 +1605,6 @@ static void FAST cmos_hook(uint32_t* regs, uint32_t* stack, uint32_t pc)
     if (gain_buttons != 0x0 && HDR_iso_a == 0x0)
     {
         isopatch = 1;
-
-        if (x3toggle == 0x1 && is_EOSM)
-        {
-            NotifyBox(1000, "Use x3crop toggle SET or turn exposure climb off");
-        }
 
         // /* check if masc selected isoauto in canon menu ;) */
         if (lens_info.raw_iso != 0x0)
@@ -5198,14 +5194,15 @@ static struct menu_entry custom_buttons_menu[] =
             {
                 .name   = "gain",
                 .priv   = &gain_buttons,
-                .max    = 4,
-                .choices = CHOICES("OFF", "ISO", "aperture + ISO", "aperture only", "INFO_switch"),
+                .max    = 5,
+                .choices = CHOICES("OFF", "ISO", "aperture + ISO", "aperture only", "INFO_switch", "SET_switch"),
                 .help   = "Up/down buttons + INFO button.",
                 .help2  = "passthrough\n"
-			          "ISO = Up/down to alter ISO\n"
-			          "aperture + ISO = Up/down to alter iso and aperture\n"
-			          "aperture only = Up/down to change aperture\n"
-			          "INFO_switch = INFO will toggle aperture or ISO(turn OFF INFO selectable\n"
+                    "ISO = Up/down to alter ISO\n"
+                    "aperture + ISO = Up/down to alter iso and aperture\n"
+                    "aperture only = Up/down to change aperture\n"
+                    "INFO_switch = INFO toggle aperture or ISO(turn OFF INFO selectable!\n"
+                    "SET_switch = SET toggle aperture or ISO(turn off x3crop!)\n"
             },
             {
                 .name   = "INFO selectable",
@@ -5219,6 +5216,19 @@ static struct menu_entry custom_buttons_menu[] =
 			          "INFO3 = toggle raw Zebras ON or OFF\n"
 			          "INFO4 = toggle False colors ON or OFF\n"
 			          "INFO5 = toggle Focus Peaking and Zebras ON or OFF\n"
+            },
+            {
+                .name   = "SET selectable",
+                .priv   = &set,
+                .max    = 5,
+                .choices = CHOICES("OFF", "SET1", "SET2", "SET3", "SET4", "SET5"),
+                .help   = "SET button, turn other SET functions to OFF!",
+                .help2  = "passthrough\n"
+                      "SET1 = access to startoff dropdown list(loupe users)\n"
+                      "SET2 = toggle between Real-time/framing\n"
+                      "SET3 = toggle raw Zebras ON or OFF\n"
+                      "SET4 = toggle False colors ON or OFF\n"
+                      "SET5 = toggle Focus Peaking and Zebras ON or OFF\n"
             },
             {
                 .name   = "Tap display",
@@ -5835,7 +5845,7 @@ if (shutteraverage)
 
 
 //Need to separate zoom function and put it in crop_rec_keypress_cbr to fix corruption
-if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 && !gui_menu_shown() && lv)
+if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EOSM_frtp && lv_dispsize != 10 && !gui_menu_shown() && lv && shamem_read(0xC0F14224) != 0x77F077F && gain_buttons != 5)
 {
 
     //Use SET button instead of halfshutter to zoom
@@ -6027,7 +6037,7 @@ if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EO
 
 
     static int prevmode = 0;
-    if (((key == MODULE_KEY_INFO && previews == 0x2) || (key == MODULE_KEY_TOUCH_1_FINGER && tapdisp == 0x2)) && (lv_dispsize != 10 && lv && is_movie_mode() && !gui_menu_shown()))
+    if (((key == MODULE_KEY_INFO && previews == 0x2) || (key == MODULE_KEY_TOUCH_1_FINGER && tapdisp == 0x2) || (key == MODULE_KEY_PRESS_SET && set == 0x2)) && (lv_dispsize != 10 && lv && is_movie_mode() && !gui_menu_shown()))
     {
         if(lv_disp_mode != 0){
             // Use INFO key to cycle LV as normal when not in the LV with ML overlays
@@ -6050,7 +6060,7 @@ if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EO
 
 
     //toggle between Zebras ON or OFF
-    if (((key == MODULE_KEY_INFO && previews == 0x3) || (key == MODULE_KEY_TOUCH_1_FINGER && tapdisp == 0x3)) && (lv_dispsize != 10 && lv && is_movie_mode() && !gui_menu_shown()))
+    if (((key == MODULE_KEY_INFO && previews == 0x3) || (key == MODULE_KEY_TOUCH_1_FINGER && tapdisp == 0x3) || (key == MODULE_KEY_PRESS_SET && set == 0x3)) && (lv_dispsize != 10 && lv && is_movie_mode() && !gui_menu_shown()))
     {
         if(lv_disp_mode != 0){
             // Use INFO key to cycle LV as normal when not in the LV with ML overlays
@@ -6073,7 +6083,7 @@ if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EO
     }
 
     //toggle between False colors ON or OFF
-    if (((key == MODULE_KEY_INFO && previews == 0x4) || (key == MODULE_KEY_TOUCH_1_FINGER && tapdisp == 0x4)) && (lv_dispsize != 10 && lv && is_movie_mode() && !gui_menu_shown()))
+    if (((key == MODULE_KEY_INFO && previews == 0x4) || (key == MODULE_KEY_TOUCH_1_FINGER && tapdisp == 0x4) || (key == MODULE_KEY_PRESS_SET && set == 0x4)) && (lv_dispsize != 10 && lv && is_movie_mode() && !gui_menu_shown()))
     {
         if(lv_disp_mode != 0){
             // Use INFO key to cycle LV as normal when not in the LV with ML overlays
@@ -6100,7 +6110,7 @@ if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EO
     }
 
     //toggle between Focus Peaking together with Zebras ON or OFF
-    if (((key == MODULE_KEY_INFO && previews == 0x5) || (key == MODULE_KEY_TOUCH_1_FINGER && tapdisp == 0x5)) && (lv_dispsize != 10 && lv && is_movie_mode() && !gui_menu_shown()))
+    if (((key == MODULE_KEY_INFO && previews == 0x5) || (key == MODULE_KEY_TOUCH_1_FINGER && tapdisp == 0x5) || (key == MODULE_KEY_PRESS_SET && set == 0x5)) && (lv_dispsize != 10 && lv && is_movie_mode() && !gui_menu_shown()))
     {
         if(lv_disp_mode != 0){
             // Use INFO key to cycle LV as normal when not in the LV with ML overlays
@@ -6155,7 +6165,7 @@ if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EO
     }
 
     /* selects Movie tab menu */
-    if (((tapdisp == 0x1 && key == MODULE_KEY_TOUCH_1_FINGER) || (previews == 0x1 && key == MODULE_KEY_INFO)) && (!gui_menu_shown() && is_movie_mode() && lv && !RECORDING && lv_dispsize != 10))
+    if (((tapdisp == 0x1 && key == MODULE_KEY_TOUCH_1_FINGER) || (previews == 0x1 && key == MODULE_KEY_INFO) || (set == 0x1 && key == MODULE_KEY_PRESS_SET)) && (!gui_menu_shown() && is_movie_mode() && lv && !RECORDING && lv_dispsize != 10))
     {
         // good place to close console
         console_hide();
@@ -6266,7 +6276,7 @@ if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EO
     }
 
     //rewire MENU key when INFO is remapped, first enter INFO, push MENU again and it enters canon menu as supposed to
-    if (key == MODULE_KEY_MENU && lv && !gui_menu_shown() && is_movie_mode() && (gain_buttons == 4 || previews))
+    if (key == MODULE_KEY_MENU && lv && !gui_menu_shown() && is_movie_mode() && (gain_buttons == 4 || gain_buttons == 5 || previews))
     {
         // good place to close console
         console_hide();
@@ -6287,7 +6297,7 @@ if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EO
 
     static int info_switch = 0;
     static int info_switch_off = 0;
-    if (key == MODULE_KEY_INFO && lv && !gui_menu_shown() && is_movie_mode() && gain_buttons == 4)
+    if ((key == MODULE_KEY_INFO || key == MODULE_KEY_PRESS_SET) && lv && !gui_menu_shown() && is_movie_mode() && (gain_buttons == 4 || gain_buttons == 5))
     {
         msleep(100);
         if(lv_disp_mode != 0){
@@ -6310,7 +6320,7 @@ if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EO
         }
     }
 
-    if (info_switch_off && gain_buttons != 4)
+    if (info_switch_off && (gain_buttons != 4 && gain_buttons != 5))
     {
         info_switch_off = 0;
         info_switch = 0;
@@ -6349,7 +6359,7 @@ if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EO
     /* iso climbing feature */
     if ((isopatch && lv && !gui_menu_shown() && is_movie_mode()) &&
         (((is_EOSM && (key == MODULE_KEY_PRESS_DOWN || key == MODULE_KEY_PRESS_UP)) || (is_5D3 && key == MODULE_KEY_INFO) ||
-          ((!is_EOSM && !is_5D3) && key == MODULE_KEY_PRESS_SET)) && gain_buttons && HDR_iso_a == 0x0))
+          ((!is_EOSM && !is_5D3) && key == MODULE_KEY_PRESS_SET)) && HDR_iso_a == 0x0 && (gain_buttons == 1 || gain_buttons == 2)))
     {
 
         // Increase or decrease exposure with aperture first (for lenses that support it)
@@ -8035,6 +8045,7 @@ MODULE_CONFIG(x3toggle)
 MODULE_CONFIG(zoomaid)
 MODULE_CONFIG(previews)
 MODULE_CONFIG(tapdisp)
+MODULE_CONFIG(set)
 MODULE_CONFIGS_END()
 
 MODULE_CBRS_START()
