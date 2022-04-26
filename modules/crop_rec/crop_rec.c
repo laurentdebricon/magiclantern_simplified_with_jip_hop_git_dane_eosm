@@ -4569,11 +4569,19 @@ static inline uint32_t reg_override_anamorphic_rewired_flv_eosm(uint32_t reg, ui
 
 static inline uint32_t reg_override_anamorphic_eosm_frtp(uint32_t reg, uint32_t old_val)
 {
-      //x10zoom possible with SET button
-      if (lv_dispsize == 10) return 0;
-      //disable zoom function while not recording and using tap display
-      if (gui_menu_shown()) zoom = 0;
-      if (lv_dispsize == 10) zoom = 0;
+        //disable zoom function while not recording and using tap display
+        if (gui_menu_shown()) zoom = 0;
+    
+      //x10zoom fixes bug where regs are stuck
+      if (lv_dispsize == 10)
+      {
+          zoom = 0;
+          if (ratios == 3) *(volatile uint32_t*)0xC0F06014 = 0xa60;
+          if (ratios == 1 || ratios == 2) *(volatile uint32_t*)0xC0F06014 = 0x91e;
+          if (!ratios) *(volatile uint32_t*)0xC0F06014 = 0xa42;
+          return 0;
+      }
+                
 
 if (ratios == 3)
 {
@@ -6034,8 +6042,6 @@ if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EO
 
     }
     
-    return 0;
-
 }
 
 
