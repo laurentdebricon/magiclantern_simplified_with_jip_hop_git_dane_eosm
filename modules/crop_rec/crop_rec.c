@@ -4569,8 +4569,11 @@ static inline uint32_t reg_override_anamorphic_rewired_flv_eosm(uint32_t reg, ui
 
 static inline uint32_t reg_override_anamorphic_eosm_frtp(uint32_t reg, uint32_t old_val)
 {
-    //x10zoom possible with SET button
-    //if (lv_dispsize == 10) return 0;
+      //x10zoom possible with SET button
+      if (lv_dispsize == 10) return 0;
+      //disable zoom function while not recording and using tap display
+      if (gui_menu_shown()) zoom = 0;
+      if (lv_dispsize == 10) zoom = 0;
 
 if (ratios == 3)
 {
@@ -4616,10 +4619,6 @@ if (!ratios)
         //reset dummy reg in raw.c
             case 0xC0f0b13c: return 0x11;
     }
-
-    //disable zoom function while not recording and using tap display
-    if (gui_menu_shown()) zoom = 0;
-    if (lv_dispsize == 10) zoom = 0;
 
     //Need to separate zoom function and put it in crop_rec_keypress_cbr to fix corruption
     if (ratios == 3)
@@ -5854,6 +5853,8 @@ if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EO
         zoom = 0;
         key = MODULE_KEY_UNPRESS_SET;
     }
+    
+    if (!lv) return 0;
 
         if (ratios == 3)
         {
@@ -6032,6 +6033,8 @@ if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EO
         }
 
     }
+    
+    return 0;
 
 }
 
@@ -7325,8 +7328,8 @@ static unsigned int crop_rec_polling_cbr(unsigned int unused)
     //make sure it´s reset if not pushing halfshutter long enough
     if (zoomaid && shamem_read(0xc0f06804) == 0x4a601d4 && crop_preset_index != 13)
     {
-        PauseLiveView();
-        ResumeLiveView();
+         PauseLiveView();
+         ResumeLiveView();
     }
 
     //make sure it´s reset if not pushing halfshutter long enough
