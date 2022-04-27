@@ -6300,6 +6300,11 @@ if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EO
             if (iso_climb == 0x5 && lens_info.raw_iso != 0x68) menu_set_str_value_from_script("Expo", "ISO", "1600", 1);
             if (iso_climb == 0x6 && lens_info.raw_iso != 0x70) menu_set_str_value_from_script("Expo", "ISO", "3200", 1);
         }
+        
+        while (!lv)
+        {
+            msleep(300);
+        }
 
         return 0;
     }
@@ -6492,6 +6497,8 @@ static int crop_rec_needs_lv_refresh()
         if (presets == 0x2)
         {
             NotifyBox(2000, "5k anamorphic frtp 12bit");
+            movie_crop_hack_disable();
+            msleep(100);
             crop_preset_index = 12;
             presets = 0;
             bitdepth = 0x2;
@@ -6505,7 +6512,6 @@ static int crop_rec_needs_lv_refresh()
             PauseLiveView();
             msleep(100);
             ResumeLiveView();
-            movie_crop_hack_disable();
             release = 0;
             release_b = 0;
             reset_movie_cropmarks();
@@ -6515,6 +6521,8 @@ static int crop_rec_needs_lv_refresh()
         if (presets == 0x3)
         {
             NotifyBox(2000, "2k 1:1 crop frtp");
+            movie_crop_hack_disable();
+            msleep(100);
             crop_preset_index = 11;
             presets = 0;
             bitdepth = 0x0;
@@ -6527,7 +6535,6 @@ static int crop_rec_needs_lv_refresh()
             PauseLiveView();
             msleep(100);
             ResumeLiveView();
-            movie_crop_hack_disable();
             release = 0;
             release_b = 0;
             reset_movie_cropmarks();
@@ -6537,6 +6544,8 @@ static int crop_rec_needs_lv_refresh()
         if (presets == 0x4)
         {
             NotifyBox(2000, "2.5k 1x1 crop 12bit");
+            movie_crop_hack_disable();
+            msleep(100);
             crop_preset_index = 3;
             presets = 0;
             bitdepth = 0x2;
@@ -6557,6 +6566,8 @@ static int crop_rec_needs_lv_refresh()
         if (presets == 0x5)
         {
             NotifyBox(2000, "2.8k 1x1 crop 10bit");
+            movie_crop_hack_disable();
+            msleep(100);
             crop_preset_index = 8;
             presets = 0;
             bitdepth = 0x1;
@@ -6577,6 +6588,8 @@ static int crop_rec_needs_lv_refresh()
         if (presets == 0x6)
         {
             NotifyBox(2000, "HD 1080p high speed fps 12bit");
+            movie_crop_hack_disable();
+            msleep(100);
             crop_preset_index = 1;
             presets = 0;
             bitdepth = 0x2;
@@ -6595,13 +6608,14 @@ static int crop_rec_needs_lv_refresh()
         if (presets == 0x7)
         {
             NotifyBox(2000, "h264 8bit");
+            movie_crop_hack_disable();
+            msleep(100);
             crop_preset_index = 13;
             presets = 0;
             bitdepth = 0x0;
             menu_set_str_value_from_script("Movie", "raw video", "OFF", 1);
             menu_set_str_value_from_script("Display", "Kill Canon GUI", "OFF", 1);
             msleep(100);
-            movie_crop_hack_disable();
             gui_open_menu();
             msleep(200);
             set_lv_zoom(1);
@@ -6617,6 +6631,8 @@ static int crop_rec_needs_lv_refresh()
         if (presets == 0x8)
         {
             NotifyBox(2000, "5k anamorphic 10bit");
+            movie_crop_hack_disable();
+            msleep(100);
             crop_preset_index = 6;
             presets = 0;
             bitdepth = 0x1;
@@ -6628,7 +6644,6 @@ static int crop_rec_needs_lv_refresh()
             PauseLiveView();
             msleep(100);
             ResumeLiveView();
-            movie_crop_hack_disable();
             //needed to reset cropmarks
             set_lv_zoom(5);
             set_lv_zoom(1);
@@ -6640,6 +6655,8 @@ static int crop_rec_needs_lv_refresh()
         if (presets == 0x9)
         {
             NotifyBox(2000, "5k anamorphic full sensor readout");
+            movie_crop_hack_disable();
+            msleep(100);
             crop_preset_index = 7;
             presets = 0;
             bitdepth = 0x1;
@@ -6652,7 +6669,6 @@ static int crop_rec_needs_lv_refresh()
             PauseLiveView();
             msleep(100);
             ResumeLiveView();
-            movie_crop_hack_disable();
             release = 0;
             release_b = 0;
             return 0;
@@ -6902,7 +6918,7 @@ static void iso()
 
     while (!lv)
     {
-        msleep(100);
+        msleep(300);
     }
 
     if (lens_info.raw_iso == 0x48) iso_climb = 0x1;
@@ -6936,6 +6952,12 @@ static void iso2()
     if (iso_climb == 0x4 && lens_info.raw_iso != 0x60) menu_set_str_value_from_script("Expo", "ISO", "800", 1);
     if (iso_climb == 0x5 && lens_info.raw_iso != 0x68) menu_set_str_value_from_script("Expo", "ISO", "1600", 1);
     if (iso_climb == 0x6 && lens_info.raw_iso != 0x70) menu_set_str_value_from_script("Expo", "ISO", "3200", 1);
+    
+    while (!lv)
+    {
+        msleep(300);
+    }
+    
 }
 
 static void iso3()
@@ -6953,6 +6975,12 @@ static void iso3()
     {
         iso_climb = 0x6;
     }
+    
+    while (!lv)
+    {
+        msleep(300);
+    }
+    
 }
 
 
