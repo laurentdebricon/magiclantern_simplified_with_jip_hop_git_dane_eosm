@@ -7265,10 +7265,11 @@ static unsigned int crop_rec_polling_cbr(unsigned int unused)
                     CROP_PRESET_MENU == CROP_PRESET_28K_EOSM ||
                     CROP_PRESET_MENU == CROP_PRESET_4K_EOSM)
                 {
-                    display_off();
-                    msleep(300);
-                    display_on();
-                    ResumeLiveView();
+                    //Snappier skipping below?
+                   // display_off();
+                   // msleep(300);
+                   // display_on();
+                   // ResumeLiveView();
                 }
                 if (zoomaid) set_lv_zoom(10);
             }
