@@ -5808,12 +5808,14 @@ static unsigned int crop_rec_keypress_cbr(unsigned int key)
     */
     
     //Will block halfshutter when using sticky push
+   /* Unfortunately buggy. Pause for now
     while (zoomaid == 0x2 && lv_dispsize == 10 && is_movie_mode())
     {
         //safeguard, no picturetaking
         module_send_keypress(MODULE_KEY_UNPRESS_FULLSHUTTER);
         msleep(10);
     }
+    */
 
 if (shutteraverage)
 {
@@ -7300,7 +7302,9 @@ static unsigned int crop_rec_polling_cbr(unsigned int unused)
             while (get_halfshutter_pressed())
             {
                 //safeguard, no picturetaking(only sticky push)
+                /* Unfortunately buggy. Pause for now
                 if (zoomaid == 0x2) module_send_keypress(MODULE_KEY_UNPRESS_FULLSHUTTER);
+                 */
                 msleep(10);
             }
         }
@@ -7317,7 +7321,9 @@ static unsigned int crop_rec_polling_cbr(unsigned int unused)
             while (get_halfshutter_pressed() && zoomaid == 0x2)
             {
                 //safeguard, no picturetaking(only sticky push)
+                /* Unfortunately buggy. Pause for now
                 module_send_keypress(MODULE_KEY_UNPRESS_FULLSHUTTER);
+                 */
                 msleep(10);
             }
             /* connected to short cut preset buttons */
