@@ -5806,6 +5806,14 @@ static unsigned int crop_rec_keypress_cbr(unsigned int key)
         return 0;
     }
     */
+    
+    //Will block halfshutter when using sticky push
+    while (zoomaid == 0x2 && lv_dispsize == 10 && is_movie_mode())
+    {
+        //safeguard, no picturetaking
+        module_send_keypress(MODULE_KEY_UNPRESS_FULLSHUTTER);
+        msleep(10);
+    }
 
 if (shutteraverage)
 {
@@ -6502,7 +6510,6 @@ static int crop_rec_needs_lv_refresh()
             crop_preset_index = 12;
             presets = 0;
             bitdepth = 0x2;
-            zoomaid = 0x2;
             menu_set_str_value_from_script("Movie", "raw video", "ON", 1);
             menu_set_str_value_from_script("raw video", "Crop rec preview", "OFF", 1);
             menu_set_str_value_from_script("raw video", "Preview", "Real-time", 1);
@@ -7292,7 +7299,9 @@ static unsigned int crop_rec_polling_cbr(unsigned int unused)
             }
             while (get_halfshutter_pressed())
             {
-                msleep(5);
+                //safeguard, no picturetaking(only sticky push)
+                if (zoomaid == 0x2) module_send_keypress(MODULE_KEY_UNPRESS_FULLSHUTTER);
+                msleep(10);
             }
         }
 
@@ -7307,7 +7316,9 @@ static unsigned int crop_rec_polling_cbr(unsigned int unused)
             //sticky push feature
             while (get_halfshutter_pressed() && zoomaid == 0x2)
             {
-                msleep(5);
+                //safeguard, no picturetaking(only sticky push)
+                module_send_keypress(MODULE_KEY_UNPRESS_FULLSHUTTER);
+                msleep(10);
             }
             /* connected to short cut preset buttons */
             if (crop_preset_index == 1) set_lv_zoom(1);
