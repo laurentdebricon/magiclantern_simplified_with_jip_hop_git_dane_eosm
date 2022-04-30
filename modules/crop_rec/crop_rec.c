@@ -4576,9 +4576,9 @@ static inline uint32_t reg_override_anamorphic_eosm_frtp(uint32_t reg, uint32_t 
       if (lv_dispsize == 10)
       {
           zoom = 0;
-          if (ratios == 3) *(volatile uint32_t*)0xC0F06014 = 0xa60;
-          if (ratios == 1 || ratios == 2) *(volatile uint32_t*)0xC0F06014 = 0x91e;
-          if (!ratios) *(volatile uint32_t*)0xC0F06014 = 0xa42;
+          if (ratios == 3) *(volatile uint32_t*)0xC0F06014 = 0xa2e;
+          if (ratios == 1 || ratios == 2) *(volatile uint32_t*)0xC0F06014 = 0x8ec;
+          if (!ratios) *(volatile uint32_t*)0xC0F06014 = 0xa10;
           return 0;
       }
                 
