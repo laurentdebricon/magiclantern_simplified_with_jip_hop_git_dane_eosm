@@ -495,7 +495,7 @@ static void run_test()
 //    DryosDebugMsg(0, 15, "not unused: 0x%x", crash_now_please);
 #endif
 
-#if 1 && defined(CONFIG_DIGIC_78) && defined(CONFIG_200D)
+#if 0 && defined(CONFIG_DIGIC_78) && defined(CONFIG_200D)
     task_create_ex("get_ttbrs", 0x1e, 0x400, get_ttbrs, 0, 0);
     task_create_ex("get_ttbrs", 0x1e, 0x400, get_ttbrs, 0, 1);
     msleep(1100);
