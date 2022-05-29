@@ -1540,6 +1540,7 @@ static void FAST cmos_hook(uint32_t* regs, uint32_t* stack, uint32_t pc)
             case CROP_PRESET_x10_EOSM:
                 // we are already in x5zoom so already set
                 // cmos_new[5] = 0x300;
+                /* Applying centering fixes https://www.magiclantern.fm/forum/index.php?topic=25781.msg238781#msg238781
                 if (x3crop == 0x0)
                 {
                     cmos_new[7] = 0xa49;
@@ -1551,6 +1552,7 @@ static void FAST cmos_hook(uint32_t* regs, uint32_t* stack, uint32_t pc)
                     if (CROP_PRESET_MENU == CROP_PRESET_3x3_mv1080_48fps_EOSM) cmos_new[7] = 0xa06;
                     if (CROP_PRESET_MENU == CROP_PRESET_anamorphic_rewired_100D) cmos_new[7] = 0xa49 - 102;
                 }
+                 */
                 if ((isoauto == 0x1 || isoauto == 0x2 || isoauto == 0x3) && lens_info.raw_iso == 0x0 && HDR_iso_a == 0x0)
                 {
                     if (isoauto == 0x1 && lens_info.raw_iso_auto > 0x54) cmos_new[0] = 0x84b; // stick to iso 400
