@@ -6383,7 +6383,7 @@ if (key == MODULE_KEY_PRESS_SET && CROP_PRESET_MENU == CROP_PRESET_Anamorphic_EO
     /* iso climbing feature */
     if ((isopatch && lv && !gui_menu_shown() && is_movie_mode()) &&
         (((is_EOSM && (key == MODULE_KEY_PRESS_DOWN || key == MODULE_KEY_PRESS_UP)) || (is_5D3 && key == MODULE_KEY_INFO) ||
-          ((!is_EOSM && !is_5D3) && key == MODULE_KEY_PRESS_SET)) && HDR_iso_a == 0x0 && (gain_buttons == 1 || gain_buttons == 2)))
+          ((!is_EOSM && !is_5D3) && key == MODULE_KEY_PRESS_SET)) && gain_buttons && HDR_iso_a == 0x0))
     {
 
         // Increase or decrease exposure with aperture first (for lenses that support it)

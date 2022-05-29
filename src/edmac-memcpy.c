@@ -344,6 +344,7 @@ void* edmac_memcpy(void* dst, void* src, size_t length)
 uint32_t raw_write_chan = 0x4;  /* 0x12 gives corrupted frames on 1.2.3, http://www.magiclantern.fm/forum/index.php?topic=10443 */
 #elif defined(EVF_STATE)
 uint32_t raw_write_chan = 0x3; /* 60D and newer, including all DIGIC V */
+/* changed channel according to https://www.magiclantern.fm/forum/index.php?topic=25784.msg235805#msg235805 */
 #endif
 
 static void edmac_slurp_complete_cbr (void* ctx)
