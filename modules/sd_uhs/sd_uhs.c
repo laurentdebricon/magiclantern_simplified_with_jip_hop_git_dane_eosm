@@ -113,8 +113,21 @@ static void sd_reset(struct cf_device * const dev)
     SD_ReConfiguration();
 }
 
+/* Returns if the card is busy (just checks if a photo is being taken/written) */
+static int card_busy()
+{
+    /* TODO: add more checks for card IO here */
+    return lens_info.job_state;
+}
+
 static void sd_overclock_task()
 {
+    /* Wait until card is not busy */
+    while (card_busy())
+    {
+        msleep(500);
+    }
+
     gui_uilock(UILOCK_EVERYTHING);
 
     if (valid)
