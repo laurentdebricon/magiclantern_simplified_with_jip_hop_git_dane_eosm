@@ -3823,8 +3823,6 @@ abort_and_check_early_stop:
 
     /* signal end of recording to the compression task */
     msg_queue_post(compress_mq, INT_MIN);
-    
-    set_recording_custom(CUSTOM_RECORDING_NOT_RECORDING);
 
     if (!RECORDING_H264)
     {
@@ -3944,7 +3942,48 @@ cleanup:
 
     if (liveview_hacked)
     {
+<<<<<<< HEAD
         hack_liveview(1);
+=======
+        take_semaphore(settings_sem, 0);
+        free_buffers();
+        restore_bit_depth();
+        give_semaphore(settings_sem);
+
+        /* everything saved, we can unlock the buttons */
+        gui_uilock(UILOCK_NONE);
+
+        if (liveview_hacked)
+        {
+            hack_liveview(1);
+        }
+        
+        /* re-enable powersaving  */
+        powersave_permit();
+
+        if (use_h264_proxy() && RECORDING_H264 &&
+            get_current_dialog_handler() != &ErrCardForLVApp_handler)
+        {
+            /* stop H.264 recording */
+            printf("Stopping H.264...\n");
+            movie_end();
+            while (RECORDING_H264) msleep(100);
+            printf("H.264 stopped.\n");
+        }
+
+        ResumeLiveView();
+        redraw();
+        set_recording_custom(CUSTOM_RECORDING_NOT_RECORDING);
+        raw_recording_state = RAW_IDLE;
+        
+        if(should_restart_recording){
+            printf("Restart raw recording...\n");
+            should_restart_recording = 0;
+            raw_start_stop();
+        }
+        
+        mlv_rec_call_cbr(MLV_REC_EVENT_STOPPED, NULL);
+>>>>>>> 04820a4d9 (mlv_lite.c: more accurate reporting of recording status to ML core)
     }
     
     /* re-enable powersaving  */
