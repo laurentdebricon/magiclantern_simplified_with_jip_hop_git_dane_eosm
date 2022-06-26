@@ -225,13 +225,17 @@ int apply_code_patch(struct mmu_config *mmu_conf,
             return -1;
     }
 
-    // our hook is 4 bytes for mov pc, [pc + 4]: 0xf000f8df
-    // followed by 4 bytes of address for the target
-    const uint8_t hook[8] = {0xdf, 0xf8, 0x00, 0xf0,
-                             (uint8_t)(patch->target_function_addr & 0xff),
-                             (uint8_t)((patch->target_function_addr >> 8) & 0xff),
-                             (uint8_t)((patch->target_function_addr >> 16) & 0xff),
-                             (uint8_t)((patch->target_function_addr >> 24) & 0xff)};
+    // Our hook is 4 bytes for mov pc, [pc + 4].
+    // Thumb rules around PC mean the +4 offset differs
+    // depending on where we write it in mem; PC is seen as +2
+    // if the Thumb instr is 2-aligned, +4 otherwise.
+    uint8_t hook[8] = {0xdf, 0xf8, 0x00, 0xf0,
+                       (uint8_t)(patch->target_function_addr & 0xff),
+                       (uint8_t)((patch->target_function_addr >> 8) & 0xff),
+                       (uint8_t)((patch->target_function_addr >> 16) & 0xff),
+                       (uint8_t)((patch->target_function_addr >> 24) & 0xff)};
+    if (patch->patch_addr & 0x2)
+        hook[2] += 2;
 
     // create data patch to apply our hook
     struct region_patch hook_patch = {
