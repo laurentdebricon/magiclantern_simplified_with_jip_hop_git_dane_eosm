@@ -45,6 +45,8 @@
 #include "../file_man/file_man.h"
 #include "../lv_rec/lv_rec.h"
 #include "../raw_twk/raw_twk.h"
+#include "../silent/lossless.h"
+#include "console.h"
 
 /* uncomment for live debug messages */
 //~ #define trace_write(trace, fmt, ...) { printf(fmt, ## __VA_ARGS__); printf("\n"); msleep(500); }
@@ -60,6 +62,7 @@ EXTLD(video_bmp);
 static int video_enabled_dummy = 0;
 extern int WEAK_FUNC(video_enabled_dummy) raw_video_enabled;
 extern int WEAK_FUNC(video_enabled_dummy) mlv_video_enabled;
+extern WEAK_FUNC(ret_0) unsigned int movie_crop_hack_disable();
 
 static char *movie_filename_dummy = "";
 extern char *WEAK_FUNC(movie_filename_dummy) raw_movie_filename;
@@ -74,6 +77,9 @@ static int frame_count = 0;
 static int frame_size = 0;
 static int bits_per_pixel = 0;
 static unsigned int fps1000 = 0; /* used for RAW playback */
+static int anamorphic = 0;
+static int active_x = 0;
+static int active_y = 0;
 
 static volatile uint32_t mlv_play_render_abort = 0;
 static volatile uint32_t mlv_play_rendering = 0;
@@ -140,11 +146,13 @@ typedef struct
 {
     uint32_t frameSize;
     void *frameBuffer;
+    void *frameBufferAligned;
     screen_msg_t messages;
     uint16_t xRes;
     uint16_t yRes;
     uint16_t bitDepth;
     uint16_t blackLevel;
+    uint16_t whiteLevel;
 } frame_buf_t;
 
 /* set up two queues - one with empty buffers and one with buffers to render */
@@ -170,6 +178,7 @@ static uint32_t mlv_play_should_stop();
 /* microsecond durations for one frame */
 static uint32_t mlv_play_frame_div_pos = 0;
 static uint32_t mlv_play_frame_dividers[3];
+
 
 static void mlv_play_flush_queue(struct msg_queue *queue)
 {
@@ -1048,33 +1057,51 @@ static void mlv_play_save_index(char *base_filename, mlv_file_hdr_t *ref_file_hd
     uint32_t last_pct = 0;
     mlv_play_progressbar(0, "");
     
+    /* allocate at least 512 byte */
+    uint32_t entry_count = (512 / sizeof(mlv_xref_t)) + 1;
+    mlv_xref_t *buffer = malloc(sizeof(mlv_xref_t) * entry_count);
+    
+    if(!buffer)
+    {
+        FIO_CloseFile(out_file);
+        return;
+    }
+    
     /* and then the single entries */
     for(int entry = 0; entry < entries; entry++)
     {
-        mlv_xref_t field;
-        uint32_t pct = (entry*100)/entries;
+        uint32_t buffer_pos = entry % entry_count;
+        mlv_xref_t *field = &buffer[buffer_pos];
+        uint32_t pct = (entry * 100) / entries;
         
         if(last_pct != pct)
         {
-            char msg[100];
+            char msg[36];
             
             snprintf(msg, sizeof(msg), "Saving index (%d entries)...", entries);
             mlv_play_progressbar(pct, msg);
             last_pct = pct;
         }
-        memset(&field, 0x00, sizeof(mlv_xref_t));
+        memset(field, 0x00, sizeof(mlv_xref_t));
         
-        field.frameOffset = index[entry].frameOffset;
-        field.fileNumber = index[entry].fileNumber;
-        field.frameType = index[entry].frameType;
+        field->frameOffset = index[entry].frameOffset;
+        field->fileNumber = index[entry].fileNumber;
+        field->frameType = index[entry].frameType;
         
-        if(FIO_WriteFile(out_file, &field, sizeof(mlv_xref_t)) != sizeof(mlv_xref_t))
+        if((buffer_pos + 1) == entry_count || ((entry + 1) == entries))
         {
-            FIO_CloseFile(out_file);
-            return;
+            int32_t write_size = (buffer_pos + 1) * sizeof(mlv_xref_t);
+            
+            if(FIO_WriteFile(out_file, buffer, write_size) != write_size)
+            {
+                free(buffer);
+                FIO_CloseFile(out_file);
+                return;
+            }
         }
     }
     
+    free(buffer);
     FIO_CloseFile(out_file);
 }
 
@@ -1387,21 +1414,88 @@ static void mlv_play_close_chunks(FILE **chunk_files, uint32_t chunk_count)
     }
 }
 
+/* just don't run it on overexposed footage :) */
+static void check_dup_frame(frame_buf_t *buffer)
+{
+    /* extremely unlikely to get identical values
+     * in subsequent frames, because of the noise
+     * exception: overexposed areas
+     * checking a small number of pixels should be
+     * enough for non-overexposed footage, and very fast */
+
+    struct sample
+    {
+        int pixels[5][5];
+    } __attribute__((packed));
+
+    /* store a small sample from current frame and also last 3 frames */
+    static struct sample prev_samples[4] = {
+        { { { -1 } } },
+        { { { -2 } } },
+        { { { -3 } } },
+        { { { -4 } } },
+    };
+
+    prev_samples[3] = prev_samples[2];
+    prev_samples[2] = prev_samples[1];
+    prev_samples[1] = prev_samples[0];
+
+    /* sample the current frame (all channels) */
+    for (int i = -2; i <= 2; i++)
+    {
+        for (int j = -2; j <= 2; j++)
+        {
+            prev_samples[0].pixels[i+2][j+2] = 
+                raw_get_pixel_ex(
+                    buffer->frameBufferAligned,
+                    buffer->xRes / 2 + j * 49,
+                    buffer->yRes / 2 + i * 49
+                );
+        }
+    }
+
+    /* compare current frame with past samples */
+    for (int i = 1; i <= 3; i++)
+    {
+        if (memcmp(&prev_samples[0], &prev_samples[i], sizeof(prev_samples[0])) == 0)
+        {
+            printf("Duplicate frame (%d)\n", i);
+        }
+    }
+}
+
 static void mlv_play_render_frame(frame_buf_t *buffer)
 {
-    raw_info.buffer = buffer->frameBuffer;
+    raw_info.buffer = buffer->frameBufferAligned;
     raw_info.bits_per_pixel = buffer->bitDepth;
     raw_info.black_level = buffer->blackLevel;
+    raw_info.white_level = buffer->whiteLevel;
     raw_set_geometry(buffer->xRes, buffer->yRes, 0, 0, 0, 0);
-    raw_force_aspect_ratio_1to1();
     
+    /* fixme: read aspect ratio from metadata */
+    //raw_force_aspect_ratio(1, 1);
+    
+    if (anamorphic)
+    {
+        raw_force_aspect_ratio(3, 1);
+    }
+    else
+    {
+        raw_force_aspect_ratio(1, 1);
+    }
+        
     if(raw_twk_available())
     {
-        raw_twk_render(buffer->frameBuffer, buffer->xRes, buffer->yRes, buffer->bitDepth, mlv_play_quality);
+        raw_twk_render_ex(buffer->frameBufferAligned, buffer->xRes, buffer->yRes, buffer->bitDepth, mlv_play_quality, buffer->blackLevel);
     }
     else
     {
         raw_preview_fast_ex((void*)-1,(void*)-1,-1,-1,mlv_play_quality);
+
+        if (!mlv_play_paused)
+        {
+            check_dup_frame(buffer);
+        }
     }
 }
 
@@ -1461,8 +1555,8 @@ static void mlv_play_render_task(uint32_t priv)
             msg_queue_post(mlv_play_queue_empty, (uint32_t) buffer);
             break;
         }
-
-        mlv_play_render_frame(buffer);
+        
+              mlv_play_render_frame(buffer);
         
         /* if info display is requested, paint it. todo: thats OSD stuff, so it should be removed from here */
         if(mlv_play_info)
@@ -1627,6 +1721,7 @@ static void mlv_play_start_fps_timer(uint32_t fps_nom, uint32_t fps_denom)
     SetHPTimerAfterNow(1, &mlv_play_fps_tick, &mlv_play_fps_tick, NULL);
 }
 
+
 static void mlv_play_mlv(char *filename, FILE **chunk_files, uint32_t chunk_count)
 {
     uint32_t fps_timer_started = 0;
@@ -1638,7 +1733,10 @@ static void mlv_play_mlv(char *filename, FILE **chunk_files, uint32_t chunk_coun
     mlv_rtci_hdr_t wavi_block;
     mlv_rtci_hdr_t rtci_block;
     mlv_file_hdr_t main_header;
-    
+
+    void *mlv_play_decomp_buf = NULL;
+    struct memSuite *mlv_play_decomp_suite = NULL;
+
     /* make sure there is no crap in stack variables */
     memset(&lens_block, 0x00, sizeof(mlv_lens_hdr_t));
     memset(&rawi_block, 0x00, sizeof(mlv_rawi_hdr_t));
@@ -1831,15 +1929,42 @@ static void mlv_play_mlv(char *filename, FILE **chunk_files, uint32_t chunk_coun
         }
         else if(!memcmp(buf.blockType, "VIDF", 4))
         {
-            frame_buf_t *buffer = NULL;
             mlv_vidf_hdr_t vidf_block;
+            
+            if(FIO_ReadFile(in_file, &vidf_block, sizeof(mlv_vidf_hdr_t)) != sizeof(mlv_vidf_hdr_t))
+            {
+                bmp_printf(FONT_MED, 30, 190, "File ends prematurely during VIDF");
+                beep();
+                msleep(1000);
+                break;
+            }
+        
+            frame_buf_t *buffer = NULL;
             
             /* now get a buffer from the queue */
             while (msg_queue_receive(mlv_play_queue_empty, &buffer, 100) && !mlv_play_should_stop());
 
             if (mlv_play_should_stop())
             {
+                /* if we also got a buffer, play nicely and give it back */
+                if(buffer)
+                {
+                    msg_queue_post(mlv_play_queue_empty, (uint32_t) buffer);
+                }
                 break;
+            }
+            
+            /* check for anamorphic recordings */
+            active_y = rawi_block.raw_info.active_area.y2;
+            active_x = rawi_block.raw_info.active_area.x2;
+
+            if (active_y > active_x)
+            {
+                 anamorphic = 1;
+            }
+            else
+            {
+                 anamorphic = 0;
             }
             
             /* check if the queued buffer has the correct size */
@@ -1852,7 +1977,8 @@ static void mlv_play_mlv(char *filename, FILE **chunk_files, uint32_t chunk_coun
                 }
                 
                 buffer->frameSize = frame_size;
-                buffer->frameBuffer = fio_malloc(buffer->frameSize);
+                buffer->frameBuffer = fio_malloc(buffer->frameSize * 16 / 14 + 0x1000);
+                buffer->frameBufferAligned = (void *) (((uint32_t)buffer->frameBuffer + 0x1000) & ~0xFFF);
             }
 
             if(!buffer->frameBuffer)
@@ -1863,107 +1989,169 @@ static void mlv_play_mlv(char *filename, FILE **chunk_files, uint32_t chunk_coun
                 break;
             }
             
-            if(FIO_ReadFile(in_file, &vidf_block, sizeof(mlv_vidf_hdr_t)) != sizeof(mlv_vidf_hdr_t))
+            int32_t read_size = MIN(frame_size, vidf_block.blockSize - (sizeof(mlv_vidf_hdr_t) + vidf_block.frameSpace));
+            void *read_buffer = buffer->frameBufferAligned;
+            
+            /* when we have LJ92 compressed video, read into a different buffer, decompressor will store it in the other one */
+            if(main_header.videoClass & MLV_VIDEO_CLASS_FLAG_LJ92)
             {
-                bmp_printf(FONT_MED, 30, 190, "File ends prematurely during VIDF");
-                beep();
-                msleep(1000);
-                break;
+                /* none allocated yet? do so */
+                if(!mlv_play_decomp_buf)
+                {
+                    int mem_size = (buffer->frameSize + 0x1000) & ~0xFFF;
+                    
+                    /* keep in mind the address must be aligned, alloc a few k more */
+                    mlv_play_decomp_buf = fio_malloc(mem_size + 0x1000);
+                    if(!mlv_play_decomp_buf)
+                    {
+                        bmp_printf(FONT_MED, 20, 100, "failed to alloc mlv_play_decomp_buf");
+                        msleep(10000);
+                        return;
+                    }
+                    
+                    mlv_play_decomp_suite = CreateMemorySuite(mlv_play_decomp_buf, mem_size, 0);
+                    if(!mlv_play_decomp_suite)
+                    {
+                        bmp_printf(FONT_MED, 20, 100, "(failed inSuite)");
+                        msleep(10000);
+                        return;
+                    }
+                }
+                
+                /* reading into this one */
+                read_buffer = mlv_play_decomp_buf;
             }
             
             /* safety check to make sure the format matches, but allow the saved block to be larger (some dummy data at the end of frame is allowed) */
-            if(sizeof(mlv_vidf_hdr_t) + vidf_block.frameSpace + buffer->frameSize > vidf_block.blockSize)
+            if((uint32_t)read_size > buffer->frameSize)
             {
-                bmp_printf(FONT_MED, 30, 400, "frame and block size mismatch: 0x%X 0x%X 0x%X", buffer->frameSize, vidf_block.frameSpace, vidf_block.blockSize);
+                bmp_printf(FONT_MED, 30, 400, "ERROR 0x%X 0x%X 0x%X 0x%X 0x%X", read_size, frame_size, buffer->frameSize, vidf_block.frameSpace, vidf_block.blockSize);
                 beep();
                 msleep(10000);
                 break;
-            }
+            } 
             
             /* skip frame space */
             FIO_SeekSkipFile(in_file, position + sizeof(mlv_vidf_hdr_t) + vidf_block.frameSpace, SEEK_SET);
 
             /* finally read the raw data */
-            if(FIO_ReadFile(in_file, buffer->frameBuffer, buffer->frameSize) != (int32_t)buffer->frameSize)
+            if(FIO_ReadFile(in_file, read_buffer, read_size) != (int32_t)read_size)
             {
                 bmp_printf(FONT_MED, 30, 190, "File ends prematurely during VIDF raw data");
                 beep();
                 msleep(1000);
                 break;
             }
-            
-            /* fill strings to display */
-            snprintf(buffer->messages.topLeft, SCREEN_MSG_LEN, "");
-            snprintf(buffer->messages.topRight, SCREEN_MSG_LEN, "");
-
-            if(lens_block.timestamp)
-            {
-                char *focusMode;
-                
-                if((lens_block.autofocusMode & 0x0F) != AF_MODE_MANUAL_FOCUS)
-                {
-                    focusMode = "AF";
-                }
-                else
-                {
-                    focusMode = "MF";
-                }
-                
-                snprintf(buffer->messages.topRight, SCREEN_MSG_LEN, "%s, %dmm, %s, %s", lens_block.lensName, lens_block.focalLength, lens_block.stabilizerMode?"IS":"no IS", focusMode);
-            }
-                
-            if(rtci_block.timestamp)
-            {
-                snprintf(buffer->messages.topLeft, SCREEN_MSG_LEN, "%02d.%02d.%04d %02d:%02d:%02d", rtci_block.tm_mday, rtci_block.tm_mon + 1, 1900 + rtci_block.tm_year, rtci_block.tm_hour, rtci_block.tm_min, rtci_block.tm_sec);
-            }
-            
-            snprintf(buffer->messages.botLeft, SCREEN_MSG_LEN, "%s: %dx%d", filename, rawi_block.xRes, rawi_block.yRes);
-            snprintf(buffer->messages.botRight, SCREEN_MSG_LEN, "%d/%d", vidf_block.frameNumber + 1, frame_count);
-            
+        
             /* update dimensions */
             buffer->xRes = rawi_block.xRes;
             buffer->yRes = rawi_block.yRes;
             buffer->bitDepth = rawi_block.raw_info.bits_per_pixel;
             buffer->blackLevel = rawi_block.raw_info.black_level;
+            buffer->whiteLevel = rawi_block.raw_info.white_level;
 
-            raw_info.black_level = rawi_block.raw_info.black_level;
-            raw_info.white_level = rawi_block.raw_info.white_level;
-            
-            if (mlv_play_exact_fps)
+            if(main_header.videoClass & MLV_VIDEO_CLASS_FLAG_LJ92)
             {
-                if (!fps_timer_started)
+                int output_bpp = raw_twk_available() ? 16 : 14;
+                int r = lossless_decompress_raw(
+                    mlv_play_decomp_suite, buffer->frameBufferAligned,
+                    rawi_block.xRes, rawi_block.yRes, 
+                    output_bpp
+                );
+
+                if (r == -1)
                 {
-                    mlv_play_start_fps_timer(main_header.sourceFpsNom, main_header.sourceFpsDenom);
-                    fps_timer_started = 1;
+                    bmp_printf(FONT_MED, 20, 300, "(no decompression on this model)");
+                }
+
+                /* when we have lossless data, we decompressed it already to 16 bpp for raw_twk */
+                if (output_bpp == 16)
+                {
+                    /* also raise black and white levels */
+                    buffer->blackLevel = rawi_block.raw_info.black_level << (16 - rawi_block.raw_info.bits_per_pixel);
+                    buffer->whiteLevel = rawi_block.raw_info.white_level << (16 - rawi_block.raw_info.bits_per_pixel);
+                    buffer->bitDepth = 16;
+                }
+            }
+            
+            if((main_header.videoClass & 0x0F) != MLV_VIDEO_CLASS_RAW)
+            {
+                bmp_printf(FONT_MED, 20, 300, "(format not supported)");
+            }
+            else
+            {
+                /* fill strings to display */
+                snprintf(buffer->messages.topLeft, SCREEN_MSG_LEN, "");
+                snprintf(buffer->messages.topRight, SCREEN_MSG_LEN, "");
+
+                if(lens_block.timestamp)
+                {
+                    char *focusMode;
+                    
+                    if((lens_block.autofocusMode & 0x0F) != AF_MODE_MANUAL_FOCUS)
+                    {
+                        focusMode = "AF";
+                    }
+                    else
+                    {
+                        focusMode = "MF";
+                    }
+                    
+                    snprintf(buffer->messages.topRight, SCREEN_MSG_LEN, "%s, %dmm, %s, %s", lens_block.lensName, lens_block.focalLength, lens_block.stabilizerMode?"IS":"no IS", focusMode);
+                }
+                    
+                if(rtci_block.timestamp)
+                {
+                    snprintf(buffer->messages.topLeft, SCREEN_MSG_LEN, "%02d.%02d.%04d %02d:%02d:%02d", rtci_block.tm_mday, rtci_block.tm_mon + 1, 1900 + rtci_block.tm_year, rtci_block.tm_hour, rtci_block.tm_min, rtci_block.tm_sec);
                 }
                 
-                if (fps_timer_started)
+                snprintf(buffer->messages.botLeft, SCREEN_MSG_LEN, "%s: %dx%d %dbpp%s", filename, rawi_block.xRes, rawi_block.yRes, rawi_block.raw_info.bits_per_pixel, (main_header.videoClass & MLV_VIDEO_CLASS_FLAG_LJ92)?" LJ92":"");
+                snprintf(buffer->messages.botRight, SCREEN_MSG_LEN, "%d/%d", vidf_block.frameNumber + 1, frame_count);
+                
+                
+                if (mlv_play_exact_fps)
                 {
-                    /* wait till it is time to render */
-                    uint32_t temp = 0;
-                    while(msg_queue_receive(mlv_play_queue_fps, &temp, 50))
+                    if (!fps_timer_started)
                     {
-                        if(mlv_play_should_stop())
+                        mlv_play_start_fps_timer(main_header.sourceFpsNom, main_header.sourceFpsDenom);
+                        fps_timer_started = 1;
+                    }
+                    
+                    if (fps_timer_started)
+                    {
+                        /* wait till it is time to render */
+                        uint32_t temp = 0;
+                        while(msg_queue_receive(mlv_play_queue_fps, &temp, 50))
                         {
-                            break;
+                            if(mlv_play_should_stop())
+                            {
+                                break;
+                            }
                         }
                     }
                 }
-            }
-            
-            /* queue frame buffer for rendering, retry if queue is full (happens in pause or for slow rendering) */
-            while(!mlv_play_should_stop())
-            {
-                if(msg_queue_post(mlv_play_queue_render, (uint32_t) buffer))
+                
+                /* queue frame buffer for rendering, retry if queue is full (happens in pause or for slow rendering) */
+                while(1)
                 {
-                    msleep(10);
-                }
-                else
-                {
-                    break;
+                    if(msg_queue_post(mlv_play_queue_render, (uint32_t) buffer))
+                    {
+                        /* in case we could not pass the buffer and stop is requested, gibe back buffer here also */
+                        if(mlv_play_should_stop())
+                        {
+                            msg_queue_post(mlv_play_queue_empty, (uint32_t) buffer);
+                        }
+                        else
+                        {
+                            msleep(10);
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
             }
-            
         }
         block_xref_pos++;
     }
@@ -1973,6 +2161,19 @@ static void mlv_play_mlv(char *filename, FILE **chunk_files, uint32_t chunk_coun
         mlv_play_stop_fps_timer();
     }
     free(block_xref);
+    
+    /* free decompression stuff if needed */
+    if(mlv_play_decomp_buf)
+    {
+        free(mlv_play_decomp_buf);
+        mlv_play_decomp_buf = NULL;
+    }
+    
+    if(mlv_play_decomp_suite)
+    {
+        DeleteMemorySuite(mlv_play_decomp_suite);
+        mlv_play_decomp_suite = NULL;
+    }
 }
 
 static void mlv_play_raw(char *filename, FILE **chunk_files, uint32_t chunk_count)
@@ -2148,6 +2349,7 @@ static void mlv_play_raw(char *filename, FILE **chunk_files, uint32_t chunk_coun
         buffer->yRes = res_y;
         buffer->bitDepth = 14;
         buffer->blackLevel = raw_info.black_level;
+        buffer->whiteLevel = raw_info.white_level;
         
         if (mlv_play_exact_fps)
         {
@@ -2433,6 +2635,7 @@ static void mlv_play_task(void *priv)
 {
     /* we will later restore that value */
     int old_black_level = raw_info.black_level;
+    int old_white_level = raw_info.white_level;
     int old_bits_per_pixel = raw_info.bits_per_pixel;
     
     if (take_semaphore(mlv_play_sem, 100))
@@ -2552,9 +2755,12 @@ cleanup:
     mlv_play_osd_delete_selected = 0;
     give_semaphore(mlv_play_sem);
     
-    /* undo black level change */
+    /* undo black and white level change */
     raw_info.black_level = old_black_level;
+    raw_info.white_level = old_white_level;
     raw_info.bits_per_pixel = old_bits_per_pixel;
+    /* might help from getting black screen after previewing on eosm. Probably valid for 100D too */
+    movie_crop_hack_disable();
 }
 
 
@@ -2712,7 +2918,7 @@ static unsigned int mlv_play_init()
     fileman_register_type("MLV", "MLV Video", mlv_play_filehandler);
     
     mlv_play_sem = create_named_semaphore("mlv_play_running", 1);
-    
+
     return 0;
 }
 

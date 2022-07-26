@@ -62,6 +62,7 @@ NSTUB(0xFF0D7674,  GUI_Control)
 NSTUB(0xFF1A805C,  SetGUIRequestMode)
 NSTUB(0xFF0D7D18,  gui_init_end)
 NSTUB(0xFF0D72A0,  gui_main_task)
+// NSTUB(0xff1c4670,  gui_massive_event_loop) Let´s pause this
 // NSTUB(    ???,  GUI_SetLvMode)                           /* present on 7D.203, 500D.111, 5D2.212, 50D.109 */
 // NSTUB(    ???,  GUI_SetMovieSize_a)                      /* present on 50D.109 */
 // NSTUB(    ???,  GUI_SetMovieSize_b)                      /* present on 50D.109 */
@@ -74,11 +75,11 @@ NSTUB(0xFF10B190,  SetNextASIFADCBuffer)                    // Int16
 NSTUB(0xFF10B378,  SetNextASIFDACBuffer)                    // Int16 Regular
 NSTUB(0xFF134504,  SetSamplingRate)
 NSTUB(0xFF10D148,  SoundDevActiveIn)
-NSTUB(0xFF10A920,  SoundDevShutDownIn)                      // Temporarily using address for StopASIFDMAADC to resolve MLV_SND issue
 NSTUB(0xFF10A674,  StartASIFDMAADC)                         // To Regular
 NSTUB(0xFF10AA48,  StartASIFDMADAC)                         // Needs Patches Or
 NSTUB(0xFF10A920,  StopASIFDMAADC)                          // Regular -- Stop ASIF ADC - needed for future changes to mlv_snd.c
 NSTUB(0xFF10ACC8,  StopASIFDMADAC)                          // NormalStopAsif
+// NSTUB(0xFF10D3A0,  SoundDevShutDownIn)                   /* breaks the audio meters */
 // NSTUB(    ???,  SetASIFMode)                             /* present on 700D.113 */
 // NSTUB(    ???,  SetAudioVolumeIn)                        /* present on 6D.113 */
 
@@ -122,8 +123,8 @@ NSTUB(0xFF520960,  ErrForCamera_handler)                    // ERR70, ERR80 etc 
 NSTUB(0xFF53800C,  HideUnaviFeedBack_maybe)                 // look for StartUnaviFeedBackTimer
 NSTUB(0xFF53A558,  LiveViewApp_handler)
 NSTUB(0xFF6FBD44,  LiveViewShutterApp_handler)
-NSTUB(0xFF3BC078,  PlayMain_handler)
-NSTUB(0xFF5540E4,  PlayMovieGuideApp_handler)
+NSTUB(0xFF715BA4,  PlayMain_handler)                        // StartPlayTouchPassFilterApp
+NSTUB(0xFF5540E4,  PlayMovieGuideApp_handler)               // StartPlayMovieGuideApp
 NSTUB(0xFF541BD4,  ShootOlcApp_handler)                     // AJ_DIALOG.HANDLER_DlgShootOlcInfo.c
 // NSTUB(    ???,  LiveViewApp_handler_BL_JudgeBottomInfoDispTimerState)/* present on 60D.111, 6D.113, 600D.102, 650D.104, 550D.109, 1100D.105, 700D.113 */
 // NSTUB(    ???,  LiveViewApp_handler_end)                 /* present on 60D.111, 600D.102, 650D.104, 550D.109, 1100D.105, 700D.113 */
@@ -273,7 +274,7 @@ NSTUB(0xFFA70048 - RAM_OFFSET,  take_semaphore)
 
 /** Task info **/
 NSTUB(   0x3F14C,  task_max)
-NSTUB(0xFFA96530 - RAM_OFFSET,  get_task_info_by_id)            // AJ_task_trampoline_related_p10
+NSTUB(0xFFA96530 - RAM_OFFSET,  is_taskid_valid)            // AJ_task_trampoline_related_p10
 NSTUB(   0x3DE78,  current_task)
 NSTUB(     0x674,  current_interrupt)                       // in interrupt handler (0x18), where MEM(C0201004) is stored
 

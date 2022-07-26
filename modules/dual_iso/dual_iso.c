@@ -69,6 +69,8 @@
 #include <fileprefix.h>
 #include <raw.h>
 #include <patch.h>
+#include "../mlv_rec/mlv.h"
+#include "../mlv_rec/mlv_rec_interface.h"
 
 static CONFIG_INT("isoless.hdr", isoless_hdr, 0);
 static CONFIG_INT("isoless.iso", isoless_recovery_iso, 3);
@@ -96,6 +98,7 @@ static int is_50d = 0;
 static int is_6d = 0;
 static int is_60d = 0;
 static int is_100d = 0; 
+static int is_70d = 0;
 static int is_500d = 0;
 static int is_550d = 0;
 static int is_600d = 0;
@@ -666,6 +669,24 @@ static struct menu_entry isoless_menu[] =
     },
 };
 
+/* callback routine for mlv_rec to add a custom DISO block after recording started (which already was specified in mlv.h in definition phase) */
+static void isoless_mlv_rec_cbr (uint32_t event, void *ctx, mlv_hdr_t *hdr)
+{
+    /* construct a free-able pointer to later pass it to mlv_rec_queue_block */
+    mlv_diso_hdr_t *dual_iso_block = malloc(sizeof(mlv_diso_hdr_t));
+    
+    /* set the correct type and size */
+    mlv_set_type((mlv_hdr_t *)dual_iso_block, "DISO");
+    dual_iso_block->blockSize = sizeof(mlv_diso_hdr_t);
+    
+    /* and fill with data */
+    dual_iso_block->dualMode = dual_iso_is_active();
+    dual_iso_block->isoValue = isoless_recovery_iso;
+    
+    /* finally pass it to mlv_rec which will free the block when it has been processed */
+    mlv_rec_queue_block((mlv_hdr_t *)dual_iso_block);
+}
+
 static unsigned int isoless_init()
 {
     if (is_camera("5D3", "1.1.3") || is_camera("5D3", "1.2.3"))
@@ -766,6 +787,48 @@ static unsigned int isoless_init()
         CMOS_ISO_BITS = 3;
         CMOS_FLAG_BITS = 2;
         CMOS_EXPECTED_FLAG = 0; 
+    }
+    else if (is_camera("70D", "1.1.2"))
+    {
+        /* Movie Mode
+        100 - 0x4045349a value (0x3)
+        200 - 0x404534c8
+        400 - 0x404534f6
+        800 - 0x40453524
+        1600 -0x40453552
+        3200 -0x40453580 
+        6400 -0x40453ae value (0xdb) */
+        
+        is_70d = 1;    
+
+        /* FRAME_CMOS_ISO_START = 0x4045349a; // CMOS register 0000 - for LiveView, ISO 100 (check in movie mode, not photo!)
+        FRAME_CMOS_ISO_COUNT =          7; // from ISO 100 to 6400 (last real iso!)
+        FRAME_CMOS_ISO_SIZE  =         46; // distance between ISO 100 and ISO 200 addresses, in bytes */
+        
+        
+        /* WE DO NOT SEEM TO BE ABLE TO USE DUAL ISO IN MOVIE MODE */
+        /* MORE CONFUSING IS THAT WE ARE INDEED ABLE TO USE */
+        /* CMOS[0] OR CMOS[3]. BOTH SEEM TO WORK WELL IN PHOTO MODE */
+        /* FOR NOW LET US OPT FOR CMOS[0] BUT THE QUESTION IS: */
+        /* COULD WE TAKE ADVANTAGE OF USING BOTH AT THE SAME TIME (TRIPLE ISO)? */
+        
+        /* Photo Mode
+        100 - 0x40451664 value (0x3)
+        200 - 0x40451678
+        400 - 0x4045168c
+        800 - 0x404516a0
+        1600 -0x404516b4
+        3200 -0x404516c8 
+        6400 -0x404516dc value (0xdb)
+        12800-0x404516dc value (0xdb) like ISO 6400 */
+        
+        PHOTO_CMOS_ISO_START = 0x40451664; // CMOS register 0000 - for photo mode, ISO 100
+        PHOTO_CMOS_ISO_COUNT =          7; // from ISO 100 to 6400 (last real iso!)
+        PHOTO_CMOS_ISO_SIZE  =         20; // distance between ISO 100 and ISO 200 addresses, in bytes
+
+        CMOS_ISO_BITS = 3;      // unverified
+        CMOS_FLAG_BITS = 2;     // unverified
+        CMOS_EXPECTED_FLAG = 3; // unverified
     }
     else if (is_camera("500D", "1.1.1"))
     {  
@@ -942,6 +1005,9 @@ static unsigned int isoless_init()
         isoless_hdr = 0;
         return 1;
     }
+    
+    mlv_rec_register_cbr(MLV_REC_EVENT_PREPARING, &isoless_mlv_rec_cbr, NULL);
+    
     return 0;
 }
 

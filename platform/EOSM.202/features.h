@@ -21,8 +21,8 @@
 /* Some Hope Yet */
 #undef FEATURE_TRAP_FOCUS
 #undef FEATURE_FOLLOW_FOCUS
-#undef FEATURE_RACK_FOCUS
-#undef FEATURE_FOCUS_STACKING
+//#undef FEATURE_RACK_FOCUS
+//#undef FEATURE_FOCUS_STACKING
 #undef FEATURE_GHOST_IMAGE // No way to pick image but works.
 #undef FEATURE_SET_MAINDIAL // Set taken over by Q
 #undef FEATURE_PLAY_EXPOSURE_FUSION
@@ -37,3 +37,4 @@
 #undef FEATURE_MAGIC_ZOOM_FULL_SCREEN // https://bitbucket.org/hudson/magic-lantern/issue/2272/full-screen-magic-zoom-is-garbled-on-700d
 
 #define FEATURE_EYEFI_TRICKS
+//#define FEATURE_JUNKIE_MENU

@@ -55,8 +55,11 @@ void mlv_fill_lens(mlv_lens_hdr_t *hdr, uint64_t start_timestamp)
     hdr->autofocusMode = af_mode;
     hdr->flags = 0;
 
+    char buf[33];
+    snprintf(buf, sizeof(buf), "%X%08X", (uint32_t) (lens_info.lens_serial >> 32), (uint32_t)(lens_info.lens_serial & 0xFFFFFFFF));
+    
     strncpy((char *)hdr->lensName, lens_info.name, 32);
-    strncpy((char *)hdr->lensSerial, "", 32);
+    strncpy((char *)hdr->lensSerial, buf, 32);
 }
 
 void mlv_fill_wbal(mlv_wbal_hdr_t *hdr, uint64_t start_timestamp)
@@ -158,7 +161,7 @@ void mlv_fill_idnt(mlv_idnt_hdr_t *hdr, uint64_t start_timestamp)
 
 void mlv_build_vers(mlv_vers_hdr_t **hdr, uint64_t start_timestamp, const char *version_string)
 {
-    int block_length = (strlen(version_string) + sizeof(mlv_vers_hdr_t) + 3) & ~3;
+    int block_length = (strlen(version_string) + sizeof(mlv_vers_hdr_t) + 1 + 3) & ~3;
     mlv_vers_hdr_t *header = malloc(block_length);
     
     /* prepare header */

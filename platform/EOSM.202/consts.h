@@ -16,10 +16,6 @@
 
 #define HIJACK_TASK_ADDR 0x3DE78
 
-// Used for copying and modifying ROM code before transferring control.
-// Look in HIJACK macros for the highest address, subtract ROMBASEADDR, align up.
-#define FIRMWARE_ENTRY_LEN 0x3000
-
 #define ARMLIB_OVERFLOWING_BUFFER 0x65CC4 // in AJ_armlib_setup_related3
 
 #define DRYOS_ASSERT_HANDLER 0x3DE58 // dec TH_assert or assert_0
@@ -108,11 +104,7 @@
 // Next, in SetGUIRequestMode, look at what code calls NotifyGUIEvent(8, something)
  //~ #define GUIMODE_ML_MENU (recording ? 0 : lv ? 90 : 2) // any from 90...102 ?!
 
-<<<<<<< HEAD
-#define GUIMODE_ML_MENU ( RECORDING_H264 ?  99 : 90 ) // any from 90...102 ?!
-=======
 #define GUIMODE_ML_MENU ( RECORDING_H264 ?  99 : 91 ) // any from 90...102 ?!
->>>>>>> 8434f91ba (crop_rec.c:(EOSM some fix https://foss.heptapod.net/magic-lantern/magic-lantern/-/commit/692eb50142bfdfa52a86253bdc46c06cf52a38f9))
 
 // for displaying TRAP FOCUS msg outside LV
 #define DISPLAY_TRAP_FOCUS_POS_X 50
@@ -174,7 +166,6 @@
 
 #define INFO_BTN_NAME "INFO"
 #define Q_BTN_NAME "[1-Finger Tap]"
-    #define ARROW_MODE_TOGGLE_KEY "IDK"
 
 #define DISPLAY_STATEOBJ (*(struct state_object **)0x3E758)
 #define DISPLAY_IS_ON (DISPLAY_STATEOBJ->current_state != 0)
@@ -189,12 +180,13 @@
 #define FRAME_SHUTTER_BLANKING_ZOOM   (*(uint16_t*)0x40481B20) // ADTG register 805f
 #define FRAME_SHUTTER_BLANKING_NOZOOM (*(uint16_t*)0x40481B24) // ADTG register 8061
 #define FRAME_SHUTTER_BLANKING_READ   (lv_dispsize > 1 ? FRAME_SHUTTER_BLANKING_NOZOOM : FRAME_SHUTTER_BLANKING_ZOOM) /* when reading, use the other mode, as it contains the original value (not overriden) */
-//~ #define FRAME_SHUTTER_BLANKING_WRITE  (lv_dispsize > 1 ? &FRAME_SHUTTER_BLANKING_ZOOM : &FRAME_SHUTTER_BLANKING_NOZOOM)
-#define LV_OVERLAYS_MODE MEM(0x89BAC + 0x7C)
+#define FRAME_SHUTTER_BLANKING_WRITE  (lv_dispsize > 1 ? &FRAME_SHUTTER_BLANKING_ZOOM : &FRAME_SHUTTER_BLANKING_NOZOOM)
+#define LV_DISP_MODE (MEM(0x89BAC + 0x7C) != 3)
 
 // see "Malloc Information"
 #define MALLOC_STRUCT 0x668C8
 #define MALLOC_FREE_MEMORY (MEM(MALLOC_STRUCT + 8) - MEM(MALLOC_STRUCT + 0x1C)) // "Total Size" - "Allocated Size"
+#define SRM_BUFFER_SIZE 0x1F24000   /* print it from srm_malloc_cbr */
 
 #define UNAVI (MEM(0x5D408) == 2) // Find with Mem Browser // dec CancelUnaviFeedBackTimer
 #define SCROLLHACK (MEM(0x5D43C) != 0) //-450
