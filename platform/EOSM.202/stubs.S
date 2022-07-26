@@ -79,7 +79,8 @@ NSTUB(0xFF10A674,  StartASIFDMAADC)                         // To Regular
 NSTUB(0xFF10AA48,  StartASIFDMADAC)                         // Needs Patches Or
 NSTUB(0xFF10A920,  StopASIFDMAADC)                          // Regular -- Stop ASIF ADC - needed for future changes to mlv_snd.c
 NSTUB(0xFF10ACC8,  StopASIFDMADAC)                          // NormalStopAsif
-// NSTUB(0xFF10D3A0,  SoundDevShutDownIn)                   /* breaks the audio meters */
+NSTUB(0xFF10A920,  SoundDevShutDownIn)                      // Temporarily using address for StopASIFDMAADC to resolve MLV_SND issue
+
 // NSTUB(    ???,  SetASIFMode)                             /* present on 700D.113 */
 // NSTUB(    ???,  SetAudioVolumeIn)                        /* present on 6D.113 */
 
