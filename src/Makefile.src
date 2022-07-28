@@ -279,7 +279,7 @@ clean::
 # target itself creates magiclantern.lds which was at the same time overwritten
 # by grep redirected output.
 magiclantern.lds: $(SRC_DIR)/magiclantern.lds.S
-	$(call build,CPP,$(CPP) $(CFLAGS) $< | $(GREP) -v '^#' > tmp.lds)
+	$(call build,CPP,$(CPP) $(CFLAGS) $< | $(GREP) -v "^#" > tmp.lds)
 	$(MV) tmp.lds $@
 
 clean::
