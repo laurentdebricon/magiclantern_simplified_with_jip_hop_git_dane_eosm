@@ -32,6 +32,7 @@
 
 #include "config-defines.h"
 #include "compiler.h"
+#include "mutex.h"
 #include "dialog.h"
 #include "consts.h"
 #include "gui.h"

@@ -225,6 +225,15 @@ static struct
     int focal_len;  /* mm */
 } metadata;
 
+int get_frame_aperture()
+{
+    #ifdef FRAME_APERTURE
+    return FRAME_APERTURE & 0xFF;
+    #else
+    return 0;
+    #endif
+}
+
 static void silent_capture_lv_metadata()
 {
     /* prefer low-level exposure settings from LiveView, if available */

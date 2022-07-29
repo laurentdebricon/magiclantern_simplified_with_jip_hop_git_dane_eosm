@@ -441,7 +441,7 @@ static void mlv_snd_start()
     {
         char filename[] = "mlv_snd.txt";
         trace_ctx = trace_start("mlv_snd", filename);
-        trace_format(trace_ctx, TRACE_FMT_TIME_REL | TRACE_FMT_COMMENT | TRACE_FMT_TASK_ID | TRACE_FMT_TASK_NAME, ' ');
+        trace_format(trace_ctx, TRACE_FMT_TIME_REL | TRACE_FMT_COMMENT, ' ');
     }
 
     trace_write(trace_ctx, "mlv_snd_start: starting");
