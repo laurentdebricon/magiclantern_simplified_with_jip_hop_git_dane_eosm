@@ -38,7 +38,7 @@ static int is_valid_cropmark_filename(char* filename)
 }
 
 #define MAX_CROP_NAME_LEN 15
-#define MAX_CROPMARKS 9
+#define MAX_CROPMARKS 10
 static int num_cropmarks = 0;
 static int cropmarks_initialized = 0;
 static char cropmark_names[MAX_CROPMARKS][MAX_CROP_NAME_LEN];
